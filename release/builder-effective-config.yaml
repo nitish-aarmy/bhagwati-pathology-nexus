@@ -1,0 +1,30 @@
+directories:
+  output: release
+  buildResources: build
+appId: com.bhagwati.pathology
+productName: Bhagwati Pathology Nexus
+files:
+  - filter:
+      - dist/**/*
+      - main.cjs
+      - package.json
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: build/icon.ico
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+npmRebuild: false
+buildDependenciesFromSource: false
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/
+electronVersion: 41.2.0

@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "bhagwati-hospital-pathology",
   "private": true,
   "version": "1.0.0",
@@ -14,6 +15,23 @@
     "test:watch": "vitest",
     "electron": "electron .",
     "package:win": "npm run build && npx @electron/packager . \"Bhagwati Pathology\" --platform=win32 --arch=x64 --out=electron-release --overwrite --ignore='node_modules' --ignore='^/src' --ignore='^/public' --ignore='^/electron-release'"
+=======
+  "name": "bhagwati-pathology-nexus",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "main": "main.cjs",
+  "description": "Desktop application for Bhagwati Pathology Nexus.",
+  "author": "Bhagwati Pathology Team",
+  "scripts": {
+    "dev": "vite",
+    "clean": "rimraf dist release build",
+    "build:react": "vite build",
+    "build:main": "node copy-main.cjs",
+    "build": "npm run build:react && npm run build:main",
+    "pack": "npm run clean && npm run build && electron-builder --dir",
+    "dist": "npm run clean && npm run build && electron-builder --win --x64 --ia32"
+>>>>>>> bc3ec9d (fix: switch to HashRouter for Electron compatibility and update build system)
   },
   "dependencies": {
     "@electron/packager": "^19.1.0",
@@ -69,6 +87,10 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "rimraf": "^5.0.5",
+    "electron": "^41.2.0",
+    "electron-builder": "^26.8.1",
+    "vite": "^5.4.21",
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
@@ -88,7 +110,43 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.38.0",
-    "vite": "^5.4.19",
     "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "com.bhagwati.pathology",
+    "productName": "Bhagwati Pathology Nexus",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "main.cjs",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
   }
 }

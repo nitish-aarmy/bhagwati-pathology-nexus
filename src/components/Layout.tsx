@@ -85,7 +85,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
         <div className="neo-concave p-4 text-center">
           <p className="text-[10px] text-muted-foreground">
-            Bhagwati Hospital Nexus
+            Rupdhary Pathology
           </p>
           <p className="text-[10px] text-muted-foreground">Pathology System v1.0</p>
         </div>

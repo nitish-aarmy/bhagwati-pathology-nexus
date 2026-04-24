@@ -1,0 +1,40 @@
+name: Build and Package Electron App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Vite React frontend
+        run: npm run build:react
+
+      - name: Build Electron main process
+        run: npm run build:main
+
+      - name: Disable code signing
+        run: echo "CSC_IDENTITY_AUTO_DISCOVERY=false" >> $env:GITHUB_ENV
+
+      - name: Package app with electron-builder
+        run: npx electron-builder --win --x64 --ia32
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: release/
+          if-no-files-found: error

@@ -1,12 +1,12 @@
 export const HOSPITAL_INFO = {
-  name: "Bhagwati Hospital",
+  name: "Rupdhary Pathology",
   tagline: "Pathology & Diagnostic Centre",
   address: "Daltonganj, Jharkhand - 822101",
   phone: "+91-XXXXXXXXXX",
 };
 
 export const DOCTORS = [
-  { id: "d1", name: "Dr. Sushil Pander" },
+  { id: "d1", name: "Dr. Sushil Pandey" },
   { id: "d2", name: "Dr. Gautam" },
   { id: "d3", name: "Dr. Ram Kinker Trivedi" },
   { id: "d4", name: "Dr. Archana Pandey" },

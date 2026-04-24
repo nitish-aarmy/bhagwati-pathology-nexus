@@ -1,0 +1,4 @@
+owner: nitish-aarmy
+repo: bhagwati-pathology-nexus
+provider: github
+updaterCacheDirName: bhagwati-pathology-nexus-updater

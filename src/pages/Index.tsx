@@ -38,7 +38,7 @@ export default function Index() {
         {/* Welcome */}
         <div className="neo-convex p-6 lg:p-8">
           <h1 className="font-heading text-2xl lg:text-3xl font-bold text-foreground mb-2">
-            Welcome to Bhagwati Hospital
+            Welcome to Rupdhary Pathology
           </h1>
           <p className="text-muted-foreground text-sm">
             Pathology & Diagnostic Centre — Daltonganj, Jharkhand
