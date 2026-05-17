@@ -1,7 +1,7 @@
 import { Patient, TestReport } from "./data";
 
-const PATIENTS_KEY = "rupdhary_patients";
-const REPORTS_KEY = "rupdhary_reports";
+const PATIENTS_KEY = "bhagwati_patients";
+const REPORTS_KEY = "bhagwati_reports";
 
 export function getPatients(): Patient[] {
   const data = localStorage.getItem(PATIENTS_KEY);

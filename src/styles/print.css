@@ -1,0 +1,42 @@
+table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+th, td { border: 1px solid #444; padding: 6px 10px; text-align: left; }
+.signature-area { margin-top: 48px; display: flex; justify-content: space-between; }
+.signature-area > div { text-align: center; min-width: 180px; }
+.remarks { margin-top: 16px; }
+input { font-size: 1em; width: 100%; border: 1px solid #bbb; padding: 2px 4px; }
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #print-report, #print-report * {
+    visibility: visible !important;
+  }
+  #print-report {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white;
+    color: #000;
+  }
+  .no-print,
+  .sidebar,
+  .dashboard,
+  .navigation,
+  .toolbar,
+  button {
+    display: none !important;
+  }
+  table, tr, td, th {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin-top: 45mm;
+  margin-left: 15mm;
+  margin-right: 15mm;
+  margin-bottom: 20mm;
+}

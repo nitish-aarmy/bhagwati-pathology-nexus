@@ -1,3 +1,94 @@
+/* --- PRINT-ONLY STYLES FOR PATHOLOGY REPORT --- */
+@media print {
+  /* Hide all non-report UI */
+  #sidebar,
+  #navigation,
+  .app-header,
+  .branding,
+  .footer,
+  .btn,
+  .action-buttons,
+  .print-hide,
+  header,
+  nav,
+  footer,
+  .report-header,
+  .report-branding {
+    display: none !important;
+  }
+
+  /* Only show print area */
+  #print-area {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    font-family: 'Arial', sans-serif !important;
+    font-size: 13px !important;
+  }
+
+  /* A4 page setup with top margin for letterhead */
+  @page {
+    size: A4;
+    margin-top: 45mm;
+    margin-left: 15mm;
+    margin-right: 15mm;
+    margin-bottom: 20mm;
+  }
+
+  /* Table styling */
+  #print-area table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 13px !important;
+    color: #000 !important;
+    margin-bottom: 24px !important;
+    page-break-inside: avoid !important;
+  }
+  #print-area th,
+  #print-area td {
+    border: 1px solid #222 !important;
+    padding: 8px 10px !important;
+    background: #fff !important;
+    font-size: 13px !important;
+    word-break: break-word !important;
+  }
+  #print-area th {
+    background: #f5f5f5 !important;
+    font-weight: bold !important;
+  }
+  #print-area tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    height: 24px !important;
+  }
+
+  /* Prevent page breaks inside important sections */
+  #print-area,
+  #print-area table,
+  #print-area tr,
+  #print-area td {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Signature area styling */
+  #print-area .signature-area {
+    margin-top: 48px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+  #print-area .signature-block {
+    text-align: center !important;
+    width: 40% !important;
+    font-size: 13px !important;
+  }
+}
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -38,5 +129,100 @@
 }
 
 .read-the-docs {
+/* --- PRINT STYLES FOR PATHOLOGY REPORT --- */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 13px !important;
+    font-family: 'Arial', sans-serif !important;
+  }
+
+  /* Hide unwanted UI */
+  #sidebar,
+  #navigation,
+  .app-header,
+  .branding,
+  .btn,
+  .action-buttons,
+  .print-hide,
+  header,
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  /* Only show print area */
+  #print-area {
+    display: block !important;
+    width: 170mm !important;
+    min-height: 257mm !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    position: relative !important;
+  }
+
+  /* Page setup for A4 */
+  @page {
+    size: A4;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+
+  /* Table formatting */
+  #print-area table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 13px !important;
+    color: #000 !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 24px !important;
+  }
+  #print-area th,
+  #print-area td {
+    border: 1px solid #222 !important;
+    padding: 8px 10px !important;
+    background: #fff !important;
+    font-size: 13px !important;
+    word-break: break-word !important;
+  }
+  #print-area th {
+    background: #f5f5f5 !important;
+    font-weight: bold !important;
+  }
+  #print-area tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    height: 24px !important;
+  }
+
+  /* Prevent page breaks inside important sections */
+  #print-area,
+  #print-area table,
+  #print-area tr,
+  #print-area td {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Signature area always at bottom if possible */
+  #print-area .signature-area {
+    margin-top: 48px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+  #print-area .signature-block {
+    text-align: center !important;
+    width: 40% !important;
+    font-size: 13px !important;
+  }
+}
   color: #888;
 }

@@ -87,7 +87,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <p className="text-[10px] text-muted-foreground">
             Rupdhary Pathology
           </p>
-          <p className="text-[10px] text-muted-foreground">Pathology System v1.0</p>
+          <p className="text-[10px] text-muted-foreground">Pathology System v1.2</p>
         </div>
       </aside>
 

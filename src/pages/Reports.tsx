@@ -1,12 +1,14 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
-import { getReports, deleteReport } from "@/lib/store";
+import { getReports, deleteReport, saveReport } from "@/lib/store";
+import { useNavigate } from "react-router-dom";
 import { TEST_CATEGORIES } from "@/lib/data";
 import { toast } from "@/hooks/use-toast";
 import { Trash2, Search, Printer, ChevronDown, ChevronUp } from "lucide-react";
 import { HOSPITAL_INFO } from "@/lib/data";
 
 export default function Reports() {
+  const navigate = useNavigate();
   const [reports, setReports] = useState(getReports());
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -27,12 +29,20 @@ export default function Reports() {
     toast({ title: "Report deleted" });
   }
 
+  function handleMarkCompleted(reportId: string) {
+    const report = reports.find((r) => r.id === reportId);
+    if (!report || report.status === "completed") return;
+    const updated = { ...report, status: "completed" };
+    saveReport(updated);
+    setReports(getReports());
+    toast({ title: "Report marked as completed!" });
+  }
+
   function handlePrint(reportId: string) {
     const report = reports.find((r) => r.id === reportId);
     if (!report) return;
     const category = TEST_CATEGORIES.find((c) => c.id === report.testCategoryId);
     if (!category) return;
-
     const printContent = `
       <html><head><title>Report - ${report.patientName}</title>
       <style>
@@ -161,6 +171,17 @@ export default function Reports() {
                         <button className="neo-btn px-4 py-2 text-xs font-medium text-primary flex items-center gap-1" onClick={() => handlePrint(report.id)}>
                           <Printer size={14} /> Print
                         </button>
+                        <button
+                          className="neo-btn px-4 py-2 text-xs font-medium text-accent flex items-center gap-1"
+                          onClick={() => navigate(`/new-test?patientId=${report.patientId}`)}
+                        >
+                          + Add New Test
+                        </button>
+                        {report.status === "pending" && (
+                          <button className="neo-btn px-4 py-2 text-xs font-medium text-success flex items-center gap-1" onClick={() => handleMarkCompleted(report.id)}>
+                            ✓ Mark as Completed
+                          </button>
+                        )}
                         <button className="neo-btn px-4 py-2 text-xs font-medium text-destructive flex items-center gap-1" onClick={() => handleDelete(report.id)}>
                           <Trash2 size={14} /> Delete
                         </button>

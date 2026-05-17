@@ -8,25 +8,34 @@ import NewTest from "./pages/NewTest";
 import Patients from "./pages/Patients";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
+import { useEffect } from "react";
+import { checkAndUpdateStorageVersion } from "@/lib/storageVersion";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <HashRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/new-test" element={<NewTest />} />
-          <Route path="/patients" element={<Patients />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </HashRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+
+const App = () => {
+  useEffect(() => {
+    checkAndUpdateStorageVersion();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <HashRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/new-test" element={<NewTest />} />
+            <Route path="/patients" element={<Patients />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </HashRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
