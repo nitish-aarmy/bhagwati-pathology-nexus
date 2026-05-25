@@ -1,5 +1,5 @@
 export const HOSPITAL_INFO = {
-  name: "Rupdhary Pathology",
+  name: "Bhagwati Hospital",
   tagline: "Pathology & Diagnostic Centre",
   address: "Daltonganj, Jharkhand - 822101",
   phone: "+91-XXXXXXXXXX",
@@ -285,16 +285,21 @@ export interface TestResult {
   value: string;
 }
 
+export interface MultiTestResult {
+  testCategoryId: string;
+  testCategoryName: string;
+  testType: "blood" | "urine" | "other";
+  results: TestResult[];
+}
+
 export interface TestReport {
   id: string;
   patientId: string;
   patientName: string;
   doctorId: string;
   doctorName: string;
-  testCategoryId: string;
-  testCategoryName: string;
-  testType: "blood" | "urine" | "other";
-  results: TestResult[];
+  tests: MultiTestResult[];
   createdAt: string;
   status: "pending" | "completed";
+  remarks?: string;
 }

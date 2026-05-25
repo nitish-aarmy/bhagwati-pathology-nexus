@@ -1,199 +1,166 @@
-import { useState } from "react";
-import Layout from "@/components/Layout";
-import { getReports, deleteReport, saveReport } from "@/lib/store";
-import { useNavigate } from "react-router-dom";
-import { TEST_CATEGORIES } from "@/lib/data";
-import { toast } from "@/hooks/use-toast";
-import { Trash2, Search, Printer, ChevronDown, ChevronUp } from "lucide-react";
-import { HOSPITAL_INFO } from "@/lib/data";
+
+import React, { useState, useEffect } from "react";
+import { generateId, getReports, saveReport as saveReportToStore } from "../lib/store";
+import PrintableReport from "../components/PrintableReport";
+import ReportEditor from "../components/ReportEditor";
+import ReportToolbar from "../components/ReportToolbar";
+import Layout from "../components/Layout";
+import { Dialog, DialogTrigger, DialogContent, DialogClose } from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { TEST_CATEGORIES } from "../lib/data";
+import "../styles/print.css";
+
+// Example persistent storage helpers
+
+import { useLocation } from "react-router-dom";
 
 export default function Reports() {
-  const navigate = useNavigate();
+  const location = useLocation();
   const [reports, setReports] = useState(getReports());
-  const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterType, setFilterType] = useState<"all" | "blood" | "urine" | "other">("all");
+  const [selectedReportId, setSelectedReportId] = useState(reports.length > 0 ? reports[0].id : null);
+  const [editMode, setEditMode] = useState(false);
+  const [backup, setBackup] = useState(null);
 
-  const filtered = reports
-    .filter((r) => filterType === "all" || r.testType === filterType)
-    .filter(
-      (r) =>
-        r.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        r.testCategoryName.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  function handleDelete(id: string) {
-    deleteReport(id);
-    setReports(getReports());
-    toast({ title: "Report deleted" });
-  }
-
-  function handleMarkCompleted(reportId: string) {
-    const report = reports.find((r) => r.id === reportId);
-    if (!report || report.status === "completed") return;
-    const updated = { ...report, status: "completed" };
-    saveReport(updated);
-    setReports(getReports());
-    toast({ title: "Report marked as completed!" });
-  }
-
-  function handlePrint(reportId: string) {
-    const report = reports.find((r) => r.id === reportId);
-    if (!report) return;
-    const category = TEST_CATEGORIES.find((c) => c.id === report.testCategoryId);
-    if (!category) return;
-    const printContent = `
-      <html><head><title>Report - ${report.patientName}</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 40px; color: #333; }
-        h1 { text-align: center; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; }
-        .info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 13px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
-        th { background: #f5f5f5; }
-        .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #999; }
-      </style></head><body>
-        <h1>${HOSPITAL_INFO.name}</h1>
-        <div class="subtitle">${HOSPITAL_INFO.tagline} — ${HOSPITAL_INFO.address}</div>
-        <div class="info">
-          <div><b>Patient:</b> ${report.patientName}</div>
-          <div><b>Doctor:</b> ${report.doctorName}</div>
-          <div><b>Date:</b> ${new Date(report.createdAt).toLocaleDateString("en-IN")}</div>
-        </div>
-        <h3>${report.testCategoryName}</h3>
-        <table>
-          <tr><th>Parameter</th><th>Result</th><th>Unit</th><th>Normal Range</th></tr>
-          ${report.results.map((r) => {
-            const sub = category.subcategories.find((s) => s.id === r.subCategoryId);
-            return `<tr><td>${sub?.name || r.subCategoryId}</td><td><b>${r.value || "-"}</b></td><td>${sub?.unit || ""}</td><td>${sub?.normalRange || ""}</td></tr>`;
-          }).join("")}
-        </table>
-        <div class="footer">This is a computer-generated report from ${HOSPITAL_INFO.name} Pathology System</div>
-      </body></html>
-    `;
-    const w = window.open("", "_blank");
-    if (w) {
-      w.document.write(printContent);
-      w.document.close();
-      w.print();
+  // Auto-refresh reports list every time the page is shown
+  useEffect(() => {
+    const updated = getReports();
+    setReports(updated);
+    if (updated.length > 0) {
+      // Keep current selection if possible, else select latest
+      const stillExists = updated.find(r => r.id === selectedReportId);
+      if (stillExists) {
+        setSelectedReportId(selectedReportId);
+      } else {
+        const latest = updated.reduce((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b);
+        setSelectedReportId(latest.id);
+      }
+    } else {
+      setSelectedReportId(null);
     }
-  }
+    // eslint-disable-next-line
+  }, [location]);
+
+  // Find the selected report object
+  const report = reports.find(r => r.id === selectedReportId) || null;
+
+  // Handle field changes (including nested 'tests')
+  const handleChange = (field, value) => {
+    setReports(reports => {
+      const updated = reports.map(r =>
+        r.id === selectedReportId ? { ...r, [field]: value } : r
+      );
+      return updated;
+    });
+  };
+
+  // Edit/save/cancel logic
+  const handleEdit = () => { setBackup(JSON.parse(JSON.stringify(report))); setEditMode(true); };
+  const handleSave = () => {
+    // Find the latest version of the report from state
+    const latest = reports.find(r => r.id === selectedReportId);
+    if (latest) {
+      saveReportToStore(latest);
+      const updatedReports = getReports();
+      setReports(updatedReports);
+      setBackup(JSON.parse(JSON.stringify(latest)));
+      // Automatically select and display the latest saved report
+      setSelectedReportId(latest.id);
+    }
+    setEditMode(false);
+  };
+  const handleCancel = () => {
+    setReports(reports => reports.map(r =>
+      r.id === selectedReportId ? backup : r
+    ));
+    setEditMode(false);
+  };
+  const handlePrint = () => window.print();
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Reports</h1>
-
-        {/* Search & Filter */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-            <input
-              className="neo-input w-full pl-10 pr-4 py-3 text-sm text-foreground"
-              placeholder="Search patient or test..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+      <div className="flex gap-8">
+        {/* Report List Sidebar */}
+        <div className="w-80 min-w-[260px] border-r border-gray-200 pr-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="font-bold text-lg">All Reports</h2>
+            <button
+              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => {
+                const updated = getReports();
+                setReports(updated);
+                if (updated.length > 0) {
+                  // Select the most recently created report
+                  const latest = updated.reduce((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b);
+                  setSelectedReportId(latest.id);
+                }
+              }}
+            >Refresh</button>
           </div>
-          <div className="flex gap-2">
-            {(["all", "blood", "urine", "other"] as const).map((t) => (
-              <button
-                key={t}
-                className={`px-4 py-2 rounded-xl text-xs font-medium capitalize transition-all ${
-                  filterType === t ? "neo-pressed text-primary" : "neo-btn text-muted-foreground"
-                }`}
-                onClick={() => setFilterType(t)}
+          <div className="flex flex-col gap-2">
+            {reports.length === 0 && <div className="text-gray-400">No reports found.</div>}
+            {reports.map(r => (
+              <div
+                key={r.id}
+                className={`p-2 rounded cursor-pointer border ${selectedReportId === r.id ? "bg-blue-100 border-blue-400" : "border-gray-200 hover:bg-gray-50"}`}
+                onClick={() => { setSelectedReportId(r.id); setEditMode(false); }}
               >
-                {t}
-              </button>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-semibold">{r.patientName || "Unnamed Patient"}</div>
+                    <div className="text-xs text-gray-500">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "-"} | {r.testCategoryName}</div>
+                  </div>
+                  <button
+                    className="ml-2 px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (window.confirm("Are you sure you want to delete this report?")) {
+                        import("../lib/store").then(mod => {
+                          mod.deleteReport(r.id);
+                          const updated = getReports();
+                          setReports(updated);
+                          // If the deleted report was selected, select another
+                          if (selectedReportId === r.id) {
+                            setSelectedReportId(updated.length > 0 ? updated[0].id : null);
+                          }
+                        });
+                      }
+                    }}
+                  >Delete</button>
+                </div>
+                <button
+                  className="mt-1 px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                  onClick={e => { e.stopPropagation(); setSelectedReportId(r.id); setEditMode(true); setBackup(r); }}
+                >Edit</button>
+              </div>
             ))}
           </div>
         </div>
-
-        {/* Reports List */}
-        <div className="space-y-3">
-          {filtered.length === 0 ? (
-            <div className="neo-concave p-8 text-center text-muted-foreground text-sm">
-              No reports found
-            </div>
+        {/* Main Report View */}
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-4">
+            <ReportToolbar
+              isEditing={editMode}
+              onEdit={handleEdit}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              onPrint={handlePrint}
+            />
+          </div>
+          {report ? (
+            editMode
+              ? <ReportEditor
+                  report={report}
+                  onChange={handleChange}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                />
+              : <PrintableReport report={report} />
           ) : (
-            filtered.map((report) => {
-              const expanded = expandedId === report.id;
-              const category = TEST_CATEGORIES.find((c) => c.id === report.testCategoryId);
-              return (
-                <div key={report.id} className="neo-flat p-4 space-y-3">
-                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => setExpandedId(expanded ? null : report.id)}>
-                    <div className={`w-2 h-2 rounded-full ${report.status === "completed" ? "bg-success" : "bg-warning"}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm text-foreground truncate">
-                        {report.patientName} — {report.testCategoryName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {report.doctorName} • {new Date(report.createdAt).toLocaleDateString("en-IN")}
-                        <span className={`ml-2 text-[10px] font-medium ${report.status === "completed" ? "text-success" : "text-warning"}`}>
-                          {report.status.toUpperCase()}
-                        </span>
-                      </p>
-                    </div>
-                    {expanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
-                  </div>
-
-                  {expanded && category && (
-                    <div className="space-y-3">
-                      <div className="neo-concave p-4 overflow-x-auto">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="text-muted-foreground">
-                              <th className="text-left py-1 pr-4">Parameter</th>
-                              <th className="text-left py-1 pr-4">Result</th>
-                              <th className="text-left py-1 pr-4">Unit</th>
-                              <th className="text-left py-1">Normal Range</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {report.results.map((r) => {
-                              const sub = category.subcategories.find((s) => s.id === r.subCategoryId);
-                              return (
-                                <tr key={r.subCategoryId} className="border-t border-border/50">
-                                  <td className="py-2 pr-4 text-foreground font-medium">{sub?.name}</td>
-                                  <td className="py-2 pr-4 text-foreground font-bold">{r.value || "-"}</td>
-                                  <td className="py-2 pr-4 text-muted-foreground">{sub?.unit}</td>
-                                  <td className="py-2 text-muted-foreground">{sub?.normalRange}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="flex gap-2">
-                        <button className="neo-btn px-4 py-2 text-xs font-medium text-primary flex items-center gap-1" onClick={() => handlePrint(report.id)}>
-                          <Printer size={14} /> Print
-                        </button>
-                        <button
-                          className="neo-btn px-4 py-2 text-xs font-medium text-accent flex items-center gap-1"
-                          onClick={() => navigate(`/new-test?patientId=${report.patientId}`)}
-                        >
-                          + Add New Test
-                        </button>
-                        {report.status === "pending" && (
-                          <button className="neo-btn px-4 py-2 text-xs font-medium text-success flex items-center gap-1" onClick={() => handleMarkCompleted(report.id)}>
-                            ✓ Mark as Completed
-                          </button>
-                        )}
-                        <button className="neo-btn px-4 py-2 text-xs font-medium text-destructive flex items-center gap-1" onClick={() => handleDelete(report.id)}>
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })
+            <div className="text-gray-400">Select a report to view.</div>
           )}
         </div>
       </div>
     </Layout>
   );
 }
+// removed stray return statement

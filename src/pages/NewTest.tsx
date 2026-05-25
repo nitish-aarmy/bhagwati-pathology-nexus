@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { DOCTORS, TEST_CATEGORIES, Patient, TestReport, TestResult } from "@/lib/data";
+import { DOCTORS, TEST_CATEGORIES, Patient, TestReport, TestResult, MultiTestResult } from "@/lib/data";
 import { getPatients, savePatient, saveReport, generateId } from "@/lib/store";
 import { toast } from "@/hooks/use-toast";
 
@@ -22,12 +22,15 @@ export default function NewTest() {
     address: "",
   });
 
-  // Test selection
+  // Multi-test selection
   const [doctorId, setDoctorId] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [testSections, setTestSections] = useState<{
+    testCategoryId: string;
+    testType: "blood" | "urine" | "other";
+    results: Record<string, string>;
+  }[]>([]);
   const [testTypeFilter, setTestTypeFilter] = useState<"blood" | "urine" | "other">("blood");
-
-  // Results
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [results, setResults] = useState<Record<string, string>>({});
 
   const selectedCategory = TEST_CATEGORIES.find((c) => c.id === selectedCategoryId);
@@ -63,7 +66,36 @@ export default function NewTest() {
       toast({ title: "Please select doctor and test", variant: "destructive" });
       return;
     }
+    // Add the first test section
+    setTestSections([
+      {
+        testCategoryId: selectedCategoryId,
+        testType: selectedCategory?.type || "blood",
+        results: { ...results },
+      },
+    ]);
     setStep(3);
+  }
+
+  function handleAddTestSection() {
+    if (!selectedCategoryId) {
+      toast({ title: "Select a test to add", variant: "destructive" });
+      return;
+    }
+    if (testSections.some(ts => ts.testCategoryId === selectedCategoryId)) {
+      toast({ title: "Test already added" });
+      return;
+    }
+    setTestSections([
+      ...testSections,
+      {
+        testCategoryId: selectedCategoryId,
+        testType: selectedCategory?.type || "blood",
+        results: { ...results },
+      },
+    ]);
+    setSelectedCategoryId("");
+    setResults({});
   }
 
   function handleSave(status: "pending" | "completed") {
@@ -71,12 +103,20 @@ export default function NewTest() {
       ? { id: selectedPatientId, name: patientForm.name }
       : patients.find((p) => p.id === selectedPatientId);
 
-    if (!patient || !selectedCategory || !selectedDoctor) return;
+    if (!patient || !selectedDoctor || testSections.length === 0) return;
 
-    const testResults: TestResult[] = selectedCategory.subcategories.map((sub) => ({
-      subCategoryId: sub.id,
-      value: results[sub.id] || "",
-    }));
+    const tests: MultiTestResult[] = testSections.map(ts => {
+      const cat = TEST_CATEGORIES.find(c => c.id === ts.testCategoryId);
+      return {
+        testCategoryId: ts.testCategoryId,
+        testCategoryName: cat?.name || "",
+        testType: ts.testType,
+        results: (cat?.subcategories || []).map(sub => ({
+          subCategoryId: sub.id,
+          value: ts.results[sub.id] || "",
+        })),
+      };
+    });
 
     const report: TestReport = {
       id: generateId(),
@@ -84,10 +124,7 @@ export default function NewTest() {
       patientName: patient.name,
       doctorId: selectedDoctor.id,
       doctorName: selectedDoctor.name,
-      testCategoryId: selectedCategory.id,
-      testCategoryName: selectedCategory.name,
-      testType: selectedCategory.type,
-      results: testResults,
+      tests,
       createdAt: new Date().toISOString(),
       status,
     };
@@ -98,6 +135,13 @@ export default function NewTest() {
   }
 
   const filteredCategories = TEST_CATEGORIES.filter((c) => c.type === testTypeFilter);
+
+  // ...existing code...
+
+  // Render logic for multi-test entry (step 3)
+  // Add after your step 3 logic:
+  // For each test section, render its parameters/results
+  // After each, show an 'Add New Test' button
 
   return (
     <Layout>

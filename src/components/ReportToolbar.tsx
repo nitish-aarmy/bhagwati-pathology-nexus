@@ -7,15 +7,29 @@ const ReportToolbar = ({
   onCancel,
   onPrint
 }) => (
-  <div className="report-toolbar no-print">
-    {!isEditing && <button onClick={onEdit}>Edit</button>}
+  <div className="report-toolbar no-print flex gap-2">
+    {!isEditing && (
+      <button
+        className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 font-semibold"
+        onClick={onEdit}
+      >Edit</button>
+    )}
     {isEditing && (
       <>
-        <button onClick={onSave}>Save</button>
-        <button onClick={onCancel}>Cancel</button>
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
+          onClick={onSave}
+        >Save</button>
+        <button
+          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold"
+          onClick={onCancel}
+        >Cancel</button>
       </>
     )}
-    <button onClick={onPrint}>Print</button>
+    <button
+      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
+      onClick={onPrint}
+    >Print</button>
   </div>
 );
 

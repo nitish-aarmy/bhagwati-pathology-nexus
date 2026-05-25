@@ -109,6 +109,13 @@ export default function Patients() {
                   <button className="neo-btn p-2 text-destructive" onClick={() => handleDelete(p.id)}>
                     <Trash2 size={16} />
                   </button>
+                  <a
+                    href={`#/reports?patientId=${p.id}`}
+                    className="neo-btn px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 ml-2"
+                    title="View Reports"
+                  >
+                    View Reports
+                  </a>
                 </div>
               );
             })
