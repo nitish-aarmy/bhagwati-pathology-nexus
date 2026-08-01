@@ -31,23 +31,23 @@ export const TEST_CATEGORIES: TestCategory[] = [
   // BLOOD TESTS
   {
     id: "cbc",
-    name: "Complete Blood Count (CBC)",
+    name: "Whole Blood Count (CBC)",
     type: "blood",
     subcategories: [
-      { id: "hb", name: "Haemoglobin (Hb)", unit: "g/dL", normalRange: "12-17" },
-      { id: "rbc", name: "RBC Count", unit: "million/μL", normalRange: "4.5-5.5" },
-      { id: "wbc", name: "WBC Count (TLC)", unit: "/μL", normalRange: "4000-11000" },
-      { id: "platelet", name: "Platelet Count", unit: "/μL", normalRange: "150000-400000" },
+      { id: "hb", name: "Haemoglobin (Hb)", unit: "gm%", normalRange: "11.5-16.5" },
+      { id: "rbc", name: "RBC Count", unit: "million/cumm", normalRange: "4.5-6.5" },
+      { id: "wbc", name: "WBC Count (TLC)", unit: "/cumm", normalRange: "4000-11000" },
+      { id: "platelet", name: "Platelet Count", unit: "lakh/cumm", normalRange: "1.5-3.5" },
       { id: "pcv", name: "PCV / Hematocrit", unit: "%", normalRange: "36-54" },
       { id: "mcv", name: "MCV", unit: "fL", normalRange: "80-100" },
       { id: "mch", name: "MCH", unit: "pg", normalRange: "27-33" },
       { id: "mchc", name: "MCHC", unit: "g/dL", normalRange: "32-36" },
-      { id: "neutrophils", name: "Neutrophils", unit: "%", normalRange: "40-70" },
-      { id: "lymphocytes", name: "Lymphocytes", unit: "%", normalRange: "20-40" },
-      { id: "monocytes", name: "Monocytes", unit: "%", normalRange: "2-8" },
-      { id: "eosinophils", name: "Eosinophils", unit: "%", normalRange: "1-4" },
-      { id: "basophils", name: "Basophils", unit: "%", normalRange: "0-1" },
-      { id: "esr", name: "ESR", unit: "mm/hr", normalRange: "0-20" },
+      { id: "neutrophils", name: "Neutrophils", unit: "%", normalRange: "55-70" },
+      { id: "lymphocytes", name: "Lymphocytes", unit: "%", normalRange: "20-35" },
+      { id: "eosinophils", name: "Eosinophils", unit: "%", normalRange: "02-06" },
+      { id: "monocytes", name: "Monocytes", unit: "%", normalRange: "01-05%" },
+      { id: "basophils", name: "Basophils", unit: "%", normalRange: "00-01" },
+      { id: "esr", name: "ESR", unit: "mm/hr", normalRange: "0-12" },
     ],
   },
   {
@@ -55,8 +55,8 @@ export const TEST_CATEGORIES: TestCategory[] = [
     name: "Blood Sugar",
     type: "blood",
     subcategories: [
-      { id: "fbs", name: "Fasting Blood Sugar", unit: "mg/dL", normalRange: "70-100" },
-      { id: "ppbs", name: "Post Prandial Blood Sugar", unit: "mg/dL", normalRange: "< 140" },
+      { id: "fbs", name: "Fasting Blood Sugar", unit: "mg/dl", normalRange: "70-110" },
+      { id: "ppbs", name: "Post Prandial Blood Sugar", unit: "mg/dl", normalRange: "Up to 140" },
       { id: "rbs", name: "Random Blood Sugar", unit: "mg/dL", normalRange: "70-140" },
       { id: "hba1c", name: "HbA1c", unit: "%", normalRange: "< 5.7" },
       { id: "gtt", name: "Glucose Tolerance Test (GTT)", unit: "mg/dL", normalRange: "Varies" },
@@ -79,16 +79,19 @@ export const TEST_CATEGORIES: TestCategory[] = [
     name: "Liver Function Test (LFT)",
     type: "blood",
     subcategories: [
-      { id: "bilirubin_total", name: "Total Bilirubin", unit: "mg/dL", normalRange: "0.1-1.2" },
-      { id: "bilirubin_direct", name: "Direct Bilirubin", unit: "mg/dL", normalRange: "0-0.3" },
+      { id: "bilirubin_total", name: "Total Bilirubin", unit: "mg/dl", normalRange: "0.2-1.1" },
+      { id: "bilirubin_direct", name: "Direct Bilirubin", unit: "mg/dl", normalRange: "Up to 0.25" },
       { id: "bilirubin_indirect", name: "Indirect Bilirubin", unit: "mg/dL", normalRange: "0.1-0.9" },
-      { id: "sgot", name: "SGOT (AST)", unit: "U/L", normalRange: "8-45" },
-      { id: "sgpt", name: "SGPT (ALT)", unit: "U/L", normalRange: "7-56" },
-      { id: "alp", name: "Alkaline Phosphatase", unit: "U/L", normalRange: "44-147" },
-      { id: "total_protein", name: "Total Protein", unit: "g/dL", normalRange: "6-8.3" },
-      { id: "albumin", name: "Albumin", unit: "g/dL", normalRange: "3.5-5" },
-      { id: "globulin", name: "Globulin", unit: "g/dL", normalRange: "2-3.5" },
-      { id: "ag_ratio", name: "A/G Ratio", unit: "", normalRange: "1.1-2.5" },
+      { id: "sgot", name: "SGOT (AST)", unit: "IU/L", normalRange: "8-40" },
+      { id: "sgpt", name: "SGPT (ALT)", unit: "IU/L", normalRange: "5-35" },
+      { id: "ggt_male", name: "GGT (Gamma Glutamyl Transferase) - Male", unit: "IU/L", normalRange: "8.61" },
+      { id: "ggt_female", name: "GGT (Gamma Glutamyl Transferase) - Female", unit: "IU/L", normalRange: "6.35" },
+      { id: "alp", name: "Alkaline Phosphatase", unit: "IU/L", normalRange: "70-270" },
+      { id: "serum_amylase", name: "Serum Amylase", unit: "U/L", normalRange: "25-125" },
+      { id: "total_protein", name: "Total Protein", unit: "g/dl", normalRange: "6.0-8.0" },
+      { id: "albumin", name: "Albumin", unit: "g/dl", normalRange: "3.7-5.3" },
+      { id: "globulin", name: "Globulin", unit: "g/dl", normalRange: "2.3-3.6" },
+      { id: "ag_ratio", name: "A/G Ratio", unit: "", normalRange: "1.0-2.3" },
     ],
   },
   {
@@ -96,14 +99,14 @@ export const TEST_CATEGORIES: TestCategory[] = [
     name: "Kidney Function Test (KFT/RFT)",
     type: "blood",
     subcategories: [
-      { id: "urea", name: "Blood Urea", unit: "mg/dL", normalRange: "15-40" },
-      { id: "bun", name: "BUN", unit: "mg/dL", normalRange: "7-20" },
-      { id: "creatinine", name: "Serum Creatinine", unit: "mg/dL", normalRange: "0.7-1.3" },
-      { id: "uric_acid", name: "Uric Acid", unit: "mg/dL", normalRange: "3.5-7.2" },
-      { id: "sodium", name: "Sodium", unit: "mEq/L", normalRange: "136-145" },
-      { id: "potassium", name: "Potassium", unit: "mEq/L", normalRange: "3.5-5" },
+      { id: "urea", name: "Blood Urea", unit: "mg/dl", normalRange: "14-40" },
+      { id: "bun", name: "BUN", unit: "mg%", normalRange: "5-21" },
+      { id: "creatinine", name: "Serum Creatinine", unit: "mg/100 ml", normalRange: "0.8-1.4" },
+      { id: "uric_acid", name: "Uric Acid", unit: "mg/dl", normalRange: "2.5-7.7" },
+      { id: "sodium", name: "Sodium", unit: "mmol/L", normalRange: "135-155" },
+      { id: "potassium", name: "Potassium", unit: "mmol/L", normalRange: "3.5-5.5" },
       { id: "chloride", name: "Chloride", unit: "mEq/L", normalRange: "98-106" },
-      { id: "calcium", name: "Calcium", unit: "mg/dL", normalRange: "8.5-10.5" },
+      { id: "calcium", name: "Calcium", unit: "mmol/L", normalRange: "2.20-2.70" },
       { id: "phosphorus", name: "Phosphorus", unit: "mg/dL", normalRange: "2.5-4.5" },
     ],
   },
@@ -112,9 +115,9 @@ export const TEST_CATEGORIES: TestCategory[] = [
     name: "Thyroid Profile",
     type: "blood",
     subcategories: [
-      { id: "t3", name: "T3", unit: "ng/dL", normalRange: "80-200" },
-      { id: "t4", name: "T4", unit: "μg/dL", normalRange: "5.1-14.1" },
-      { id: "tsh", name: "TSH", unit: "mIU/L", normalRange: "0.4-4.0" },
+      { id: "t3", name: "T3", unit: "ng/ml", normalRange: "0.60-1.81" },
+      { id: "t4", name: "T4", unit: "ng/ml", normalRange: "4.50-10.90" },
+      { id: "tsh", name: "TSH", unit: "ng/ml", normalRange: "0.35-5.50" },
       { id: "ft3", name: "Free T3", unit: "pg/mL", normalRange: "2.3-4.2" },
       { id: "ft4", name: "Free T4", unit: "ng/dL", normalRange: "0.8-1.8" },
     ],
@@ -129,8 +132,8 @@ export const TEST_CATEGORIES: TestCategory[] = [
     ],
   },
   {
-    id: "widal",
-    name: "Widal Test",
+    id: "typhoid",
+    name: "Typhoid Test",
     type: "blood",
     subcategories: [
       { id: "to", name: "S. Typhi O", unit: "", normalRange: "< 1:80" },
@@ -146,11 +149,11 @@ export const TEST_CATEGORIES: TestCategory[] = [
     name: "Coagulation Profile",
     type: "blood",
     subcategories: [
-      { id: "pt", name: "Prothrombin Time (PT)", unit: "sec", normalRange: "11-13.5" },
+      { id: "pt", name: "Prothrombin Time (PT)", unit: "sec", normalRange: "10-15" },
       { id: "inr", name: "INR", unit: "", normalRange: "0.8-1.2" },
       { id: "aptt", name: "aPTT", unit: "sec", normalRange: "25-35" },
-      { id: "bt", name: "Bleeding Time", unit: "min", normalRange: "1-6" },
-      { id: "ct", name: "Clotting Time", unit: "min", normalRange: "4-9" },
+      { id: "bt", name: "Bleeding Time", unit: "sec", normalRange: "0-2" },
+      { id: "ct", name: "Clotting Time", unit: "min", normalRange: "2-4" },
     ],
   },
   {
@@ -164,9 +167,11 @@ export const TEST_CATEGORIES: TestCategory[] = [
       { id: "vdrl", name: "VDRL", unit: "", normalRange: "Non-Reactive" },
       { id: "ra_factor", name: "RA Factor", unit: "IU/mL", normalRange: "< 14" },
       { id: "aso", name: "ASO Titre", unit: "IU/mL", normalRange: "< 200" },
-      { id: "crp", name: "CRP", unit: "mg/L", normalRange: "< 6" },
+      { id: "crp", name: "CRP", unit: "mg/L", normalRange: "0.5-5.5" },
       { id: "dengue_ns1", name: "Dengue NS1 Antigen", unit: "", normalRange: "Negative" },
       { id: "dengue_igg_igm", name: "Dengue IgG/IgM", unit: "", normalRange: "Negative" },
+      { id: "typhoid_igm", name: "Typhoid (Ig M)", unit: "", normalRange: "Negative/Positive" },
+      { id: "typhoid_igg", name: "Typhoid (Ig G)", unit: "", normalRange: "Negative/Positive" },
       { id: "malaria", name: "Malaria Antigen (Rapid)", unit: "", normalRange: "Negative" },
     ],
   },
@@ -273,23 +278,28 @@ export const TEST_CATEGORIES: TestCategory[] = [
 export interface Patient {
   id: string;
   name: string;
+  testId?: string;
   age: number;
+  ageUnit?: "Years" | "Months" | "Days";
   gender: "Male" | "Female" | "Other";
   phone: string;
   address?: string;
+  refBy?: string;
   createdAt: string;
+}
+
+export function formatPatientAge(patient?: { age?: number | string; ageUnit?: string } | null): string {
+  if (!patient || patient.age === undefined || patient.age === null || patient.age === "") return "-";
+
+  const unit = (patient.ageUnit || "Years").toLowerCase();
+  if (unit.startsWith("month")) return `${patient.age}M`;
+  if (unit.startsWith("day")) return `${patient.age}D`;
+  return `${patient.age}Y`;
 }
 
 export interface TestResult {
   subCategoryId: string;
   value: string;
-}
-
-export interface MultiTestResult {
-  testCategoryId: string;
-  testCategoryName: string;
-  testType: "blood" | "urine" | "other";
-  results: TestResult[];
 }
 
 export interface TestReport {
@@ -298,8 +308,11 @@ export interface TestReport {
   patientName: string;
   doctorId: string;
   doctorName: string;
-  tests: MultiTestResult[];
+  testCategoryId: string;
+  testCategoryName: string;
+  testType: "blood" | "urine" | "other";
+  results: TestResult[];
   createdAt: string;
+  reportedAt?: string;
   status: "pending" | "completed";
-  remarks?: string;
 }

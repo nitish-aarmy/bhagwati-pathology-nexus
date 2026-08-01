@@ -1,36 +1,19 @@
 import React from "react";
 
-const ReportToolbar = ({
-  isEditing,
-  onEdit,
-  onSave,
-  onCancel,
-  onPrint
-}) => (
-  <div className="report-toolbar no-print flex gap-2">
-    {!isEditing && (
-      <button
-        className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 font-semibold"
-        onClick={onEdit}
-      >Edit</button>
-    )}
-    {isEditing && (
-      <>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold"
-          onClick={onSave}
-        >Save</button>
-        <button
-          className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold"
-          onClick={onCancel}
-        >Cancel</button>
-      </>
-    )}
-    <button
-      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-semibold"
-      onClick={onPrint}
-    >Print</button>
-  </div>
-);
+export interface ReportToolbarProps {
+  onSave: () => void;
+  onPrint: () => void;
+  onExportPDF?: () => void;
+}
+
+const ReportToolbar: React.FC<ReportToolbarProps> = ({ onSave, onPrint, onExportPDF }) => {
+  return (
+    <div className="flex gap-2 mb-4 print:hidden">
+      <button className="neo-btn px-4 py-2 !bg-emerald-700 !text-white hover:!bg-emerald-800 border border-emerald-900" onClick={onSave}>Save Report</button>
+      <button className="neo-btn px-4 py-2" onClick={onPrint}>Print Report</button>
+      {onExportPDF && <button className="neo-btn px-4 py-2" onClick={onExportPDF}>Export PDF</button>}
+    </div>
+  );
+};
 
 export default ReportToolbar;

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 140" role="img" aria-label="Pathologist signature">
+  <defs>
+    <linearGradient id="ink" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="transparent"/>
+  <path d="M22 92 C40 34, 70 36, 84 90 C90 114, 116 108, 118 84 C120 60, 126 54, 132 90 C136 112, 160 112, 166 88 C174 56, 190 58, 198 88 C206 118, 228 116, 232 88 C236 62, 250 60, 258 88 C266 116, 292 116, 296 88 C300 60, 314 58, 322 88 C330 118, 354 116, 360 88 C366 60, 384 62, 394 94" fill="none" stroke="url(#ink)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24 106 C78 118, 132 120, 188 112 C252 102, 308 104, 392 114" fill="none" stroke="#334155" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 7"/>
+</svg>

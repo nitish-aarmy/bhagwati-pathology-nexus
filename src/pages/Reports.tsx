@@ -1,166 +1,149 @@
+import { useState } from "react";
+import Layout from "@/components/Layout";
+import PatientRecord from "@/components/PatientRecord";
+import ReportEditor from "@/components/ReportEditor";
+import ReportPreview from "@/components/ReportPreview";
+import ReportToolbar from "@/components/ReportToolbar";
+import PrintLayout from "@/components/PrintLayout";
+import { getReports, saveReport, getPatients } from "@/lib/store";
+import { TEST_CATEGORIES } from "@/lib/data";
+import { toast } from "@/hooks/use-toast";
 
-import React, { useState, useEffect } from "react";
-import { generateId, getReports, saveReport as saveReportToStore } from "../lib/store";
-import PrintableReport from "../components/PrintableReport";
-import ReportEditor from "../components/ReportEditor";
-import ReportToolbar from "../components/ReportToolbar";
-import Layout from "../components/Layout";
-import { Dialog, DialogTrigger, DialogContent, DialogClose } from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
-import { TEST_CATEGORIES } from "../lib/data";
-import "../styles/print.css";
-
-// Example persistent storage helpers
-
-import { useLocation } from "react-router-dom";
-
-export default function Reports() {
-  const location = useLocation();
+const Reports = () => {
+  const [patients, setPatients] = useState(getPatients());
   const [reports, setReports] = useState(getReports());
-  const [selectedReportId, setSelectedReportId] = useState(reports.length > 0 ? reports[0].id : null);
-  const [editMode, setEditMode] = useState(false);
-  const [backup, setBackup] = useState(null);
+  const [patientSearch, setPatientSearch] = useState("");
+  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [editingReport, setEditingReport] = useState<any>(null);
+  const [step, setStep] = useState(1);
 
-  // Auto-refresh reports list every time the page is shown
-  useEffect(() => {
-    const updated = getReports();
-    setReports(updated);
-    if (updated.length > 0) {
-      // Keep current selection if possible, else select latest
-      const stillExists = updated.find(r => r.id === selectedReportId);
-      if (stillExists) {
-        setSelectedReportId(selectedReportId);
-      } else {
-        const latest = updated.reduce((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b);
-        setSelectedReportId(latest.id);
-      }
-    } else {
-      setSelectedReportId(null);
-    }
-    // eslint-disable-next-line
-  }, [location]);
-
-  // Find the selected report object
-  const report = reports.find(r => r.id === selectedReportId) || null;
-
-  // Handle field changes (including nested 'tests')
-  const handleChange = (field, value) => {
-    setReports(reports => {
-      const updated = reports.map(r =>
-        r.id === selectedReportId ? { ...r, [field]: value } : r
-      );
-      return updated;
-    });
+  // Step 1: Patient Record
+  const handleSelectPatient = (id: string) => {
+    setSelectedPatientId(id);
+    setStep(1);
+  };
+  const handleOpenReport = (reportId: string) => {
+    setSelectedReportId(reportId);
+    const report = reports.find(r => r.id === reportId);
+    setEditingReport(report ? { ...report } : null);
+    setStep(2);
+  };
+  const handleCreateReport = (patientId: string) => {
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) return;
+    const now = new Date().toISOString();
+    const newReport = {
+      id: Date.now().toString(),
+      patientId: patient.id,
+      patient: patient,
+      createdAt: now,
+      reportedAt: now,
+      sections: []
+    };
+    setEditingReport(newReport);
+    setStep(2);
   };
 
-  // Edit/save/cancel logic
-  const handleEdit = () => { setBackup(JSON.parse(JSON.stringify(report))); setEditMode(true); };
+  // Step 2: Edit
+  const handleUpdateReport = (report: any) => {
+    setEditingReport(report);
+  };
+
+  // Step 3: Preview
+  const handlePreview = () => {
+    setStep(3);
+  };
+
+  // Step 4: Print & Save
   const handleSave = () => {
-    // Find the latest version of the report from state
-    const latest = reports.find(r => r.id === selectedReportId);
-    if (latest) {
-      saveReportToStore(latest);
-      const updatedReports = getReports();
-      setReports(updatedReports);
-      setBackup(JSON.parse(JSON.stringify(latest)));
-      // Automatically select and display the latest saved report
-      setSelectedReportId(latest.id);
+    if (!editingReport) return;
+    const reportToSave = {
+      ...editingReport,
+      reportedAt: new Date().toISOString(),
+    };
+    let updatedReports = [...reports];
+    const idx = updatedReports.findIndex(r => r.id === reportToSave.id);
+    if (idx !== -1) {
+      updatedReports[idx] = reportToSave;
+    } else {
+      updatedReports.push(reportToSave);
     }
-    setEditMode(false);
+    setReports(updatedReports);
+    saveReport(reportToSave);
+    toast({ title: "Report saved!", variant: "success" });
+    setStep(1);
   };
-  const handleCancel = () => {
-    setReports(reports => reports.map(r =>
-      r.id === selectedReportId ? backup : r
-    ));
-    setEditMode(false);
+  const handlePrint = () => {
+    const originalTitle = document.title;
+    const suffix = editingReport?.id || new Date().toISOString().slice(0, 10);
+    document.title = `Bhagwati Pathology - ${suffix}`;
+
+    const restoreTitle = () => {
+      document.title = originalTitle;
+    };
+
+    window.addEventListener("afterprint", restoreTitle, { once: true });
+    window.print();
+    setTimeout(restoreTitle, 1500);
   };
-  const handlePrint = () => window.print();
 
   return (
     <Layout>
-      <div className="flex gap-8">
-        {/* Report List Sidebar */}
-        <div className="w-80 min-w-[260px] border-r border-gray-200 pr-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="font-bold text-lg">All Reports</h2>
-            <button
-              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={() => {
-                const updated = getReports();
-                setReports(updated);
-                if (updated.length > 0) {
-                  // Select the most recently created report
-                  const latest = updated.reduce((a, b) => new Date(a.createdAt) > new Date(b.createdAt) ? a : b);
-                  setSelectedReportId(latest.id);
-                }
-              }}
-            >Refresh</button>
-          </div>
-          <div className="flex flex-col gap-2">
-            {reports.length === 0 && <div className="text-gray-400">No reports found.</div>}
-            {reports.map(r => (
-              <div
-                key={r.id}
-                className={`p-2 rounded cursor-pointer border ${selectedReportId === r.id ? "bg-blue-100 border-blue-400" : "border-gray-200 hover:bg-gray-50"}`}
-                onClick={() => { setSelectedReportId(r.id); setEditMode(false); }}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-semibold">{r.patientName || "Unnamed Patient"}</div>
-                    <div className="text-xs text-gray-500">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "-"} | {r.testCategoryName}</div>
-                  </div>
-                  <button
-                    className="ml-2 px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (window.confirm("Are you sure you want to delete this report?")) {
-                        import("../lib/store").then(mod => {
-                          mod.deleteReport(r.id);
-                          const updated = getReports();
-                          setReports(updated);
-                          // If the deleted report was selected, select another
-                          if (selectedReportId === r.id) {
-                            setSelectedReportId(updated.length > 0 ? updated[0].id : null);
-                          }
-                        });
-                      }
-                    }}
-                  >Delete</button>
-                </div>
-                <button
-                  className="mt-1 px-3 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
-                  onClick={e => { e.stopPropagation(); setSelectedReportId(r.id); setEditMode(true); setBackup(r); }}
-                >Edit</button>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Main Report View */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-4">
-            <ReportToolbar
-              isEditing={editMode}
-              onEdit={handleEdit}
-              onSave={handleSave}
-              onCancel={handleCancel}
-              onPrint={handlePrint}
+      <div className="max-w-4xl mx-auto p-4">
+        {step === 1 && (
+          <PatientRecord
+            patients={patients}
+            reports={reports}
+            onSelectPatient={handleSelectPatient}
+            onOpenReport={handleOpenReport}
+            onCreateReport={handleCreateReport}
+            patientSearch={patientSearch}
+            setPatientSearch={setPatientSearch}
+            selectedPatientId={selectedPatientId}
+          />
+        )}
+        {step === 2 && editingReport && (
+          <>
+            <ReportEditor
+              report={editingReport}
+              testCategories={TEST_CATEGORIES}
+              onUpdateReport={handleUpdateReport}
             />
-          </div>
-          {report ? (
-            editMode
-              ? <ReportEditor
-                  report={report}
-                  onChange={handleChange}
-                  onSave={handleSave}
-                  onCancel={handleCancel}
-                />
-              : <PrintableReport report={report} />
-          ) : (
-            <div className="text-gray-400">Select a report to view.</div>
-          )}
-        </div>
+            <div className="mt-5 flex gap-3">
+              <button
+                className="rounded-xl bg-slate-100 px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-[6px_6px_14px_#d5dbe4,-6px_-6px_14px_#ffffff] transition hover:text-slate-900"
+                onClick={() => setStep(1)}
+              >
+                Back
+              </button>
+              <button
+                className="rounded-xl bg-cyan-50 px-5 py-2.5 text-sm font-semibold text-cyan-700 shadow-[6px_6px_14px_#d5dbe4,-6px_-6px_14px_#ffffff] transition hover:bg-cyan-100"
+                onClick={handlePreview}
+              >
+                Preview
+              </button>
+            </div>
+          </>
+        )}
+        {step === 3 && editingReport && (
+          <>
+            <PrintLayout>
+              <ReportPreview report={editingReport} patient={patients.find(p => p.id === editingReport.patientId)} />
+            </PrintLayout>
+            <ReportToolbar onSave={handleSave} onPrint={handlePrint} />
+            <button
+              className="mt-4 rounded-xl bg-amber-50 px-5 py-2.5 text-sm font-semibold text-amber-700 shadow-[6px_6px_14px_#d5dbe4,-6px_-6px_14px_#ffffff] transition hover:bg-amber-100"
+              onClick={() => setStep(2)}
+            >
+              Edit
+            </button>
+          </>
+        )}
       </div>
     </Layout>
   );
-}
-// removed stray return statement
+};
+
+export default Reports;
+

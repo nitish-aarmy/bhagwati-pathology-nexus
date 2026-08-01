@@ -1,94 +1,126 @@
 import React from "react";
-import { TEST_CATEGORIES } from "../lib/data";
-import { getPatients } from "../lib/store";
 
-const PrintableReport = ({ report }) => {
-  // Patient details
-  const patientName = report.patientName || "-";
-  const doctorName = report.doctorName || "-";
-  const date = report.createdAt ? new Date(report.createdAt).toLocaleDateString() : "-";
-  const time = report.createdAt ? new Date(report.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-";
-  const testId = report.id || "-";
-  const patientId = report.patientId || "-";
+const SIGNATURE_ASSET_VERSION = "20260726a";
+const PATHOLOGIST_SIGNATURE_SRC = `${import.meta.env.BASE_URL}pathologist-signature.jpeg?v=${SIGNATURE_ASSET_VERSION}`;
+const PATHOLOGIST_SIGNATURE_FALLBACK_SRC = `${import.meta.env.BASE_URL}pathologist-signature.svg?v=${SIGNATURE_ASSET_VERSION}`;
 
-  // Fetch patient details for age/sex
-  let age = "-", gender = "-";
-  try {
-    const patients = getPatients();
-    const patient = patients.find(p => p.id === patientId);
-    if (patient) {
-      age = patient.age ? String(patient.age) : "-";
-      gender = patient.gender || "-";
-    }
-  } catch {}
+// Types for new clinical report structure
+export interface ClinicalTestRow {
+  id: string;
+  testName: string;
+  result: string;
+  unit: string;
+  referenceRange: string;
+}
+
+export interface ClinicalReportSection {
+  id: string;
+  category: string;
+  tests: ClinicalTestRow[];
+}
+
+export interface ClinicalReport {
+  id: string;
+  patient: {
+    name: string;
+    age: string;
+    sex: string;
+    refBy: string;
+    testId: string;
+    date: string;
+    collectionDate: string;
+  };
+  sections: ClinicalReportSection[];
+  remarks?: string;
+}
+
+// Printable report component
+const PrintableReport: React.FC<{ report: ClinicalReport }> = ({ report }) => {
+  const hasFedValue = (value: unknown): boolean => {
+    const text = String(value ?? "").trim();
+    if (!text) return false;
+    const upper = text.toUpperCase();
+    return upper !== "N/A" && text !== "-";
+  };
+
+  const parsedDate = new Date(report.patient.date || report.patient.collectionDate || "");
+  const printableDate = Number.isNaN(parsedDate.getTime())
+    ? (report.patient.date || report.patient.collectionDate || "-")
+    : parsedDate.toLocaleDateString("en-IN");
+  const printableTime = Number.isNaN(parsedDate.getTime())
+    ? "-"
+    : parsedDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div id="print-report" className="bg-white p-4 w-full max-w-[1100px] mx-auto text-black font-sans text-xs leading-tight">
-      {/* Patient & Report Info */}
-      <div className="flex flex-wrap justify-between items-center border-b border-gray-400 pb-2 mb-4">
-        <div className="flex flex-col gap-1">
-          <span className="font-semibold text-base">Patient Name: <span className="font-normal">{patientName}</span></span>
-          <span>Patient ID: <span className="font-normal">{patientId}</span></span>
-          <span>Age/Sex: <span className="font-normal">{age} / {gender}</span></span>
-          <span>Test ID: <span className="font-normal">{testId}</span></span>
-          <span>Doctor: <span className="font-normal">{doctorName}</span></span>
-        </div>
-        <div className="flex flex-col gap-1 text-right">
-          <span>Date: <span className="font-normal">{date}</span></span>
-          <span>Collection Time: <span className="font-normal">{time}</span></span>
-        </div>
-      </div>
+    <div id="print-report" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 11, width: '100%' }}>
+      {/* Patient Details - compact, full width, no branding */}
+      <table style={{ width: '100%', marginBottom: 8, borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <tbody>
+          <tr>
+            <td style={{ padding: '2px 6px' }}><b>Patient Name:</b> {report.patient.name}</td>
+            <td style={{ padding: '2px 6px' }}><b>Age:</b> {report.patient.age}</td>
+            <td style={{ padding: '2px 6px' }}><b>Gender:</b> {report.patient.sex}</td>
+            <td style={{ padding: '2px 6px' }}><b>Ref Doctor:</b> {report.patient.refBy}</td>
+          </tr>
+          <tr>
+            <td style={{ padding: '2px 6px' }}><b>Date:</b> {printableDate}</td>
+            <td style={{ padding: '2px 6px' }}><b>Time:</b> {printableTime}</td>
+            <td style={{ padding: '2px 6px' }}><b>Report ID:</b> {report.patient.testId}</td>
+            <td style={{ padding: '2px 6px' }}></td>
+          </tr>
+        </tbody>
+      </table>
+      {/* Sections - full width, dense, professional table */}
+      {report.sections.map(section => {
+        const filledTests = section.tests.filter(test => hasFedValue(test.result));
+        if (filledTests.length === 0) return null;
 
-      {/* Only performed test sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {report.tests && report.tests.length > 0 ? report.tests.map((test, idx) => {
-          const cat = TEST_CATEGORIES.find(c => c.id === test.testCategoryId);
-          return (
-            <div key={test.testCategoryId} className="mb-2 border border-gray-300 rounded">
-              <div className="font-bold text-xs bg-gray-100 border-b border-gray-300 px-2 py-1 uppercase tracking-wide">{cat?.name || test.testCategoryName}</div>
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="border border-gray-300 px-1 py-0.5 text-left">Parameter</th>
-                    <th className="border border-gray-300 px-1 py-0.5 text-left">Result</th>
-                    <th className="border border-gray-300 px-1 py-0.5 text-left">Unit</th>
-                    <th className="border border-gray-300 px-1 py-0.5 text-left">Reference</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cat?.subcategories.map(param => {
-                    const result = test.results.find(r => r.subCategoryId === param.id);
-                    return (
-                      <tr key={param.id}>
-                        <td className="border border-gray-300 px-1 py-0.5 font-semibold">{param.name}</td>
-                        <td className="border border-gray-300 px-1 py-0.5">{result?.value || "N/A"}</td>
-                        <td className="border border-gray-300 px-1 py-0.5 text-gray-600">{param.unit || ""}</td>
-                        <td className="border border-gray-300 px-1 py-0.5 text-gray-600">{param.normalRange || ""}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+        return (
+          <div key={section.id} style={{ marginBottom: 10 }}>
+            <div style={{ fontWeight: 'bold', fontSize: 12, letterSpacing: 1, marginBottom: 2, borderBottom: '1px solid #222', paddingBottom: 2, textTransform: 'uppercase' }}>
+              {section.category}
             </div>
-          );
-        }) : <div className="text-gray-400">No tests performed.</div>}
-      </div>
-
-      {/* Remarks */}
-      <div className="mb-4 mt-2">
-        <span className="font-semibold">Remarks:</span>
-        <span className="ml-2">{report.remarks || "-"}</span>
-      </div>
-
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 2, tableLayout: 'fixed', fontSize: 11 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', border: '1px solid #222', padding: '2px 4px', fontWeight: 'bold', background: '#f8f8f8' }}>Parameter</th>
+                  <th style={{ textAlign: 'left', border: '1px solid #222', padding: '2px 4px', fontWeight: 'bold', background: '#f8f8f8' }}>Result</th>
+                  <th style={{ textAlign: 'left', border: '1px solid #222', padding: '2px 4px', fontWeight: 'bold', background: '#f8f8f8' }}>Unit</th>
+                  <th style={{ textAlign: 'left', border: '1px solid #222', padding: '2px 4px', fontWeight: 'bold', background: '#f8f8f8' }}>Reference Range</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filledTests.map(test => (
+                  <tr key={test.id}>
+                    <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.testName}</td>
+                    <td style={{ padding: '2px 4px', border: '1px solid #222', fontWeight: 'bold', wordBreak: 'break-word' }}>{test.result}</td>
+                    <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.unit}</td>
+                    <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.referenceRange}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
       {/* Signature Area */}
-      <div className="flex justify-between mt-8 pt-4">
-        <div className="flex flex-col items-center">
-          <div className="w-32 border-t border-gray-400 mb-1"></div>
-          <span className="text-xs">Technician Signature</span>
-        </div>
-        <div className="flex flex-col items-center">
-          <div className="w-32 border-t border-gray-400 mb-1"></div>
-          <span className="text-xs">Doctor Signature</span>
+      <div style={{ marginTop: 32, display: 'flex', justifyContent: 'space-between', fontSize: 11 }}>
+        <div>Technician Signature</div>
+        <div style={{ textAlign: 'right' }}>
+          <img
+            src={PATHOLOGIST_SIGNATURE_SRC}
+            alt="Pathologist signature"
+            style={{ height: 42, width: 'auto', objectFit: 'contain', display: 'block', marginLeft: 'auto' }}
+            onError={(event) => {
+              const img = event.currentTarget;
+              if (img.src.includes("pathologist-signature.jpeg")) {
+                img.src = PATHOLOGIST_SIGNATURE_FALLBACK_SRC;
+                return;
+              }
+              img.style.display = 'none';
+            }}
+          />
+          <div style={{ borderTop: '1px solid #222', paddingTop: 4 }}>Pathologist Signature</div>
         </div>
       </div>
     </div>

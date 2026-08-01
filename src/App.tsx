@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NewTest from "./pages/NewTest";
 import Patients from "./pages/Patients";
 import Reports from "./pages/Reports";
+import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 import { checkAndUpdateStorageVersion } from "@/lib/storageVersion";
@@ -24,12 +25,13 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <HashRouter>
+        <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/new-test" element={<NewTest />} />
             <Route path="/patients" element={<Patients />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/help" element={<Help />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </HashRouter>

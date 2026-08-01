@@ -6,6 +6,7 @@ import {
   FlaskConical,
   Users,
   FileText,
+  CircleHelp,
   Menu,
   X,
   Activity,
@@ -16,6 +17,7 @@ const navItems = [
   { path: "/new-test", label: "New Test", icon: FlaskConical },
   { path: "/patients", label: "Patients", icon: Users },
   { path: "/reports", label: "Reports", icon: FileText },
+  { path: "/help", label: "Help", icon: CircleHelp },
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {
