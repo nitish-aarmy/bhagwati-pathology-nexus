@@ -104,7 +104,13 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
-          <input className="neo-input px-2 py-1" placeholder="Name *" value={newPatientForm.name} onChange={e => setNewPatientForm({ ...newPatientForm, name: capitalizeWords(e.target.value) })} />
+          <input
+            className="neo-input px-2 py-1 uppercase"
+            placeholder="Patient Name *"
+            autoCapitalize="characters"
+            value={newPatientForm.name}
+            onChange={e => setNewPatientForm({ ...newPatientForm, name: e.target.value.toUpperCase() })}
+          />
           <input
             className="neo-input px-2 py-1"
             placeholder="Test ID"

@@ -15,6 +15,28 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
 }) => {
   const normalizeReportValue = (value: string) => value.toUpperCase();
 
+  const formatDropdownLabel = (value: string) => {
+    const normalized = String(value || "").trim().toUpperCase();
+
+    if (normalized === "NON-REACTIVE" || normalized === "NON REACTIVE") {
+      return "Non Reactive";
+    }
+
+    if (normalized === "REACTIVE") {
+      return "Reactive";
+    }
+
+    if (normalized === "NEGATIVE") {
+      return "Negative";
+    }
+
+    if (normalized === "POSITIVE") {
+      return "Positive";
+    }
+
+    return value;
+  };
+
   const getDropdownOptions = (normalRange?: string): string[] | null => {
     const range = String(normalRange || "").toUpperCase();
 
@@ -68,7 +90,7 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
                         if (options) {
                           return (
                             <select
-                              className="neo-input w-full px-2 py-1 uppercase"
+                              className="neo-input w-full px-2 py-1"
                               value={currentValue}
                               onChange={(e) =>
                                 setResults((r: any) => ({
@@ -77,9 +99,9 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
                                 }))
                               }
                             >
-                              <option value="">SELECT</option>
+                              <option value="">Select</option>
                               {options.map((option) => (
-                                <option key={option} value={option}>{option}</option>
+                                <option key={option} value={option}>{formatDropdownLabel(option)}</option>
                               ))}
                             </select>
                           );

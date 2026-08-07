@@ -127,9 +127,28 @@
     letter-spacing: 0.02em !important;
   }
 
+  #print-report .report-results-table tbody td:nth-child(2) {
+    font-weight: 700 !important;
+  }
+
   #print-report .report-footer {
     margin-top: 2mm !important;
     border-top: 1px dashed #111 !important;
     padding-top: 1mm !important;
+  }
+
+  #print-report .report-page-counter {
+    position: fixed !important;
+    right: 8mm !important;
+    bottom: 3mm !important;
+    font-size: 10px !important;
+    color: #111 !important;
+    z-index: 9999 !important;
+    background: #fff !important;
+    padding: 0 2mm !important;
+  }
+
+  #print-report .report-page-counter::after {
+    content: "Page " counter(page) " of " counter(pages);
   }
 }

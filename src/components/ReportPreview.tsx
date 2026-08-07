@@ -1,5 +1,6 @@
 import React from "react";
 import { formatPatientAge } from "@/lib/data";
+import { formatDateDMY } from "@/lib/utils";
 
 const SIGNATURE_ASSET_VERSION = "20260726a";
 const PATHOLOGIST_SIGNATURE_SRC = `${import.meta.env.BASE_URL}pathologist-signature.jpeg?v=${SIGNATURE_ASSET_VERSION}`;
@@ -30,16 +31,17 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
     if (!value) return { date: "-", time: "-" };
     const parsed = new Date(String(value));
     if (Number.isNaN(parsed.getTime())) {
-      return { date: String(value), time: safePatient?.time || "-" };
+      return { date: formatDateDMY(value), time: safePatient?.time || "-" };
     }
     return {
-      date: parsed.toLocaleDateString("en-IN"),
+      date: formatDateDMY(value),
       time: parsed.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }),
     };
   };
 
   const collectionDateTime = getDateTime(safePatient?.date || report?.createdAt);
   const reportingDateTime = getDateTime(report?.reportedAt || report?.updatedAt || report?.createdAt || safePatient?.time);
+  const patientAgeGender = `${formatPatientAge(safePatient)}/${safePatient?.gender || "-"}`;
 
   const hasFedValue = (value: unknown): boolean => {
     const text = String(value ?? "").trim();
@@ -172,18 +174,85 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
     };
   };
 
-  const getPositiveNegativePrintClass = (value: string) => {
-    const normalized = String(value || "").trim().toUpperCase();
+  const formatReportValue = (value: string) => {
+    const raw = String(value || "").trim();
+    const normalized = raw.toUpperCase();
 
-    if (normalized === "NEGATIVE" || normalized === "NON-REACTIVE") {
-      return "print:text-red-700 print:font-semibold";
+    if (normalized === "NON-REACTIVE" || normalized === "NON REACTIVE") {
+      return "Non Reactive";
     }
 
-    if (normalized === "POSITIVE" || normalized === "REACTIVE") {
+    if (normalized === "REACTIVE") {
+      return "Reactive";
+    }
+
+    if (normalized === "NEGATIVE") {
+      return "Negative";
+    }
+
+    if (normalized === "POSITIVE") {
+      return "Positive";
+    }
+
+    return raw;
+  };
+
+  const getPositiveNegativePrintClass = (value: string, sectionName?: string) => {
+    const normalized = String(value || "").trim().toUpperCase();
+    const compact = normalized.replace(/[^A-Z0-9+\-]/g, "");
+    const isPositiveLike =
+      compact === "POSITIVE" ||
+      compact.includes("POSITIVE") ||
+      compact === "REACTIVE" ||
+      compact.includes("REACTIVE") ||
+      compact === "+VE" ||
+      compact.startsWith("+");
+    const isNegativeLike =
+      compact === "NEGATIVE" ||
+      compact.includes("NEGATIVE") ||
+      compact === "NONREACTIVE" ||
+      compact.includes("NONREACTIVE") ||
+      compact === "-VE" ||
+      compact.startsWith("-");
+    const isBloodGroupingSection = String(sectionName || "")
+      .toUpperCase()
+      .includes("BLOOD GROUPING & TYPING");
+
+    if (isBloodGroupingSection) {
+      if (isNegativeLike) {
+        return "text-red-700 font-semibold print:text-red-700 print:font-semibold";
+      }
+
+      if (isPositiveLike) {
+        return "text-black font-semibold print:text-black print:font-semibold";
+      }
+    }
+
+    if (isNegativeLike) {
       return "print:text-black print:font-semibold";
     }
 
+    if (isPositiveLike) {
+      return "print:text-red-700 print:font-semibold";
+    }
+
     return "";
+  };
+
+  const getPrintableSectionTitle = (sectionName: unknown) => {
+    const rawName = String(sectionName || "").trim();
+    if (!rawName) return "Section";
+
+    const normalized = rawName.toUpperCase().replace(/\s+/g, " ").trim();
+    const isCbc = normalized.includes("COMPLETE BLOOD COUNT(CBC)") || normalized.includes("COMPLETE BLOOD COUNT (CBC)");
+    const withCbcSample = isCbc ? "Complete Blood Count(CBC)-whole blood" : rawName;
+
+    // Print-only casing request: show SERUM as Serum.
+    return withCbcSample.replace(/\bSERUM\b/gi, "Serum");
+  };
+
+  const formatPrintableText = (value: unknown) => {
+    return String(value ?? "").replace(/\bSERUM\b/gi, "Serum");
   };
 
   const tableHeadClass = "px-2 py-1 text-left text-[10px] font-semibold uppercase tracking-wide text-slate-700 print:px-2 print:py-[3px] print:text-[10.5px]";
@@ -202,9 +271,9 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
           className="report-section-block mb-3 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-[8px_8px_18px_#d5dbe4,-8px_-8px_18px_#ffffff] print:mb-1 print:rounded-none print:border-black/60 print:bg-white print:shadow-none"
         >
           <div className="border-b border-slate-300 bg-slate-100 px-2 py-1 text-[10.5px] font-semibold tracking-wide text-slate-800 shadow-[inset_2px_2px_6px_#d5dbe4,inset_-2px_-2px_6px_#ffffff] print:bg-transparent print:px-2 print:py-[3px] print:shadow-none print:text-[11px]">
-            {section?.category || "Section"}
+            {getPrintableSectionTitle(section?.category)}
           </div>
-          <table className="w-full table-fixed border-collapse bg-white/70 print:bg-white">
+          <table className="report-results-table w-full table-fixed border-collapse bg-white/70 print:bg-white">
             <colgroup>
               <col style={{ width: "31%" }} />
               <col style={{ width: "20%" }} />
@@ -223,18 +292,19 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
             </thead>
             <tbody>
               {filledTests.map((test: any, testIndex: number) => {
-                const resultValue = String(test?.result ?? "").trim();
+                const rawResultValue = String(test?.result ?? "").trim();
+                const resultValue = formatReportValue(rawResultValue);
                 const referenceRange = test?.referenceRange || "-";
                 const effectiveRange = getGenderSpecificRange(String(referenceRange), safePatient?.gender);
-                const flag = getResultFlag(String(resultValue), String(effectiveRange));
+                const flag = getResultFlag(String(rawResultValue), String(effectiveRange));
                 const style = getFlagClasses(flag);
-                const positiveNegativePrintClass = getPositiveNegativePrintClass(resultValue);
+                const positiveNegativePrintClass = getPositiveNegativePrintClass(rawResultValue, section?.category);
 
                 return (
                   <tr key={`${test?.testName || "test"}-${testIndex}`} className={`border-b border-slate-200/80 ${style.row}`}>
-                    <td className={`${tableCellClass} font-medium ${style.parameter}`}>{test?.testName || "-"}</td>
-                    <td className={`${tableCellClass} ${style.result} ${positiveNegativePrintClass}`}>
-                      <span>{resultValue}</span>
+                    <td className={`${tableCellClass} font-medium ${style.parameter}`}>{formatPrintableText(test?.testName || "-")}</td>
+                    <td className={`${tableCellClass} ${style.result} ${positiveNegativePrintClass} print:font-bold`}>
+                      <span className="font-bold print:font-bold">{resultValue}</span>
                       {style.label && <span className="ml-1 text-[8.5px] font-bold print:hidden">{style.label}</span>}
                     </td>
                     <td className={tableCellClass}>{test?.unit || "-"}</td>
@@ -270,9 +340,9 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
           className="report-section-block mb-3 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-[8px_8px_18px_#d5dbe4,-8px_-8px_18px_#ffffff] print:mb-1 print:rounded-none print:border-black/60 print:bg-white print:shadow-none"
         >
           <div className="border-b border-slate-300 bg-slate-100 px-2 py-1 text-[10.5px] font-semibold tracking-wide text-slate-800 shadow-[inset_2px_2px_6px_#d5dbe4,inset_-2px_-2px_6px_#ffffff] print:bg-transparent print:px-2 print:py-[3px] print:shadow-none print:text-[11px]">
-            {cat.name}
+            {getPrintableSectionTitle(cat.name)}
           </div>
-          <table className="w-full table-fixed border-collapse bg-white/70 print:bg-white">
+          <table className="report-results-table w-full table-fixed border-collapse bg-white/70 print:bg-white">
             <colgroup>
               <col style={{ width: "31%" }} />
               <col style={{ width: "20%" }} />
@@ -291,18 +361,19 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
             </thead>
             <tbody>
               {filledSubcategories.map((sub: any) => {
-                const resultValue = String(safeResults[testId]?.[sub.id] ?? "").trim();
+                const rawResultValue = String(safeResults[testId]?.[sub.id] ?? "").trim();
+                const resultValue = formatReportValue(rawResultValue);
                 const referenceRange = sub.normalRange || "-";
                 const effectiveRange = getGenderSpecificRange(String(referenceRange), safePatient?.gender);
-                const flag = getResultFlag(String(resultValue), String(effectiveRange));
+                const flag = getResultFlag(String(rawResultValue), String(effectiveRange));
                 const style = getFlagClasses(flag);
-                const positiveNegativePrintClass = getPositiveNegativePrintClass(resultValue);
+                const positiveNegativePrintClass = getPositiveNegativePrintClass(rawResultValue, cat?.name);
 
                 return (
                   <tr key={sub.id} className={`border-b border-slate-200/80 ${style.row}`}>
-                    <td className={`${tableCellClass} font-medium ${style.parameter}`}>{sub.name}</td>
-                    <td className={`${tableCellClass} ${style.result} ${positiveNegativePrintClass}`}>
-                      <span>{resultValue}</span>
+                    <td className={`${tableCellClass} font-medium ${style.parameter}`}>{formatPrintableText(sub.name)}</td>
+                    <td className={`${tableCellClass} ${style.result} ${positiveNegativePrintClass} print:font-bold`}>
+                      <span className="font-bold print:font-bold">{resultValue}</span>
                       {style.label && <span className="ml-1 text-[8.5px] font-bold print:hidden">{style.label}</span>}
                     </td>
                     <td className={tableCellClass}>{sub.unit || "-"}</td>
@@ -333,7 +404,7 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
           <tr>
             <td>
               <div className="report-meta mb-3 rounded-2xl border border-slate-200 bg-slate-100 px-3 py-2 shadow-[inset_4px_4px_10px_#d6dce5,inset_-4px_-4px_10px_#ffffff] print:mb-1 print:rounded-none print:border-black/50 print:bg-transparent print:px-1.5 print:py-1 print:shadow-none">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10px] text-slate-700 print:gap-x-3 print:gap-y-1 print:text-[11px]">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10px] text-slate-700 print:hidden">
                   <div><span className="font-semibold">Patient:</span> <span className="font-bold">{safePatient?.name || "-"}</span></div>
                   <div><span className="font-semibold">Test ID:</span> {safePatient?.testId || safePatient?.id || "-"}</div>
                   <div><span className="font-semibold">Age/Gender:</span> {formatPatientAge(safePatient)} / {safePatient?.gender || "-"}</div>
@@ -342,6 +413,66 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
                   <div><span className="font-semibold">Address:</span> {safePatient?.address || "-"}</div>
                   <div><span className="font-semibold">Date:</span> <span className="font-bold">{collectionDateTime.date}</span></div>
                   <div><span className="font-semibold">Reporting Time:</span> {reportingDateTime.time}</div>
+                </div>
+
+                <div className="hidden print:block">
+                  <table className="w-full table-fixed border-collapse text-[11px] text-black">
+                    <colgroup>
+                      <col style={{ width: "60%" }} />
+                      <col style={{ width: "40%" }} />
+                    </colgroup>
+                    <tbody>
+                      <tr>
+                        <td className="px-1 py-[2px] align-top">
+                          <table className="w-full border-collapse text-[11px] leading-tight">
+                            <tbody>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Patient Name</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px] font-bold">{safePatient?.name || "-"}</td>
+                              </tr>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Age/Gender</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px]">{patientAgeGender}</td>
+                              </tr>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Ref Doctor</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px]">{safePatient?.refBy || "-"}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                        <td className="px-1 py-[2px] align-top">
+                          <table className="w-full border-collapse text-[11px] leading-tight">
+                            <tbody>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Test ID</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px]">{safePatient?.testId || safePatient?.id || "-"}</td>
+                              </tr>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Date</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px] font-bold">{collectionDateTime.date}</td>
+                              </tr>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Reporting Time</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px]">{reportingDateTime.time}</td>
+                              </tr>
+                              <tr>
+                                <td className="w-[90px] py-[2px] pr-1 font-semibold">Mobile</td>
+                                <td className="w-[8px] py-[2px] font-semibold">:</td>
+                                <td className="py-[2px]">{safePatient?.phone || "-"}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </td>
@@ -376,6 +507,7 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({
           </tr>
         </tbody>
       </table>
+      <div className="report-page-counter hidden print:block" aria-hidden="true" />
     </div>
   );
 };

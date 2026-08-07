@@ -45,7 +45,7 @@ function NewTest() {
   };
 
   // Stepper labels
-  const steps = ["Patient", "Test", "Results", "Preview"];
+  const steps = ["Patient Name", "Test", "Results", "Preview"];
 
   // Register new patient
   const handleRegisterPatient = (form: any) => {
@@ -57,7 +57,7 @@ function NewTest() {
     const patient = {
       ...form,
       id: newId,
-      name: capitalizeWords(String(form.name)),
+      name: String(form.name || "").trim().toUpperCase(),
       testId: String(form.testId || "").trim().toUpperCase(),
       refBy: capitalizeWords(String(form.refBy || "")),
       address: capitalizeWords(String(form.address || "")),

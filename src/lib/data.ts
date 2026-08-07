@@ -31,7 +31,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   // BLOOD TESTS
   {
     id: "cbc",
-    name: "Whole Blood Count (CBC)",
+    name: "COMPLETE BLOOD COUNT(CBC)",
     type: "blood",
     subcategories: [
       { id: "hb", name: "Haemoglobin (Hb)", unit: "gm%", normalRange: "11.5-16.5" },
@@ -52,7 +52,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "blood_sugar",
-    name: "Blood Sugar",
+    name: "BLOOD SUGAR (SERUM)",
     type: "blood",
     subcategories: [
       { id: "fbs", name: "Fasting Blood Sugar", unit: "mg/dl", normalRange: "70-110" },
@@ -64,7 +64,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "lipid",
-    name: "Lipid Profile",
+    name: "LIPID PROFILE",
     type: "blood",
     subcategories: [
       { id: "total_chol", name: "Total Cholesterol", unit: "mg/dL", normalRange: "< 200" },
@@ -76,7 +76,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "lft",
-    name: "Liver Function Test (LFT)",
+    name: "LIVER FUNCTION TEST (LFT) (SERUM)",
     type: "blood",
     subcategories: [
       { id: "bilirubin_total", name: "Total Bilirubin", unit: "mg/dl", normalRange: "0.2-1.1" },
@@ -96,7 +96,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "kft",
-    name: "Kidney Function Test (KFT/RFT)",
+    name: "KIDNEY FUNCTION TEST (KFT/RFT) (SERUM)",
     type: "blood",
     subcategories: [
       { id: "urea", name: "Blood Urea", unit: "mg/dl", normalRange: "14-40" },
@@ -112,7 +112,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "thyroid",
-    name: "Thyroid Profile",
+    name: "THYROID PROFILE",
     type: "blood",
     subcategories: [
       { id: "t3", name: "T3", unit: "ng/ml", normalRange: "0.60-1.81" },
@@ -124,7 +124,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "blood_group",
-    name: "Blood Grouping & Typing",
+    name: "BLOOD GROUPING & TYPING (WHOLE BLOOD)",
     type: "blood",
     subcategories: [
       { id: "abo", name: "ABO Group", unit: "", normalRange: "A/B/AB/O" },
@@ -133,7 +133,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "typhoid",
-    name: "Typhoid Test",
+    name: "TYPHOID TEST",
     type: "blood",
     subcategories: [
       { id: "to", name: "S. Typhi O", unit: "", normalRange: "< 1:80" },
@@ -146,7 +146,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "coagulation",
-    name: "Coagulation Profile",
+    name: "COAGULATION PROFILE",
     type: "blood",
     subcategories: [
       { id: "pt", name: "Prothrombin Time (PT)", unit: "sec", normalRange: "10-15" },
@@ -158,7 +158,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "serology",
-    name: "Serology / Immunology",
+    name: "SEROLOGY / IMMUNOLOGY",
     type: "blood",
     subcategories: [
       { id: "hiv", name: "HIV I & II", unit: "", normalRange: "Non-Reactive" },
@@ -177,81 +177,64 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   // URINE TESTS
   {
-    id: "urine_routine",
-    name: "Urine Routine & Microscopy",
+    id: "urine_physical_exam",
+    name: "URINE - PHYSICAL EXAM",
     type: "urine",
     subcategories: [
-      { id: "color", name: "Colour", unit: "", normalRange: "Pale Yellow" },
-      { id: "appearance", name: "Appearance", unit: "", normalRange: "Clear" },
-      { id: "ph", name: "pH", unit: "", normalRange: "4.6-8" },
-      { id: "sp_gravity", name: "Specific Gravity", unit: "", normalRange: "1.005-1.030" },
-      { id: "protein_u", name: "Protein", unit: "", normalRange: "Nil" },
-      { id: "glucose_u", name: "Glucose", unit: "", normalRange: "Nil" },
-      { id: "ketone", name: "Ketone Bodies", unit: "", normalRange: "Nil" },
-      { id: "blood_u", name: "Blood", unit: "", normalRange: "Nil" },
-      { id: "bilirubin_u", name: "Bilirubin", unit: "", normalRange: "Nil" },
-      { id: "urobilinogen", name: "Urobilinogen", unit: "mg/dL", normalRange: "0.1-1" },
-      { id: "nitrite", name: "Nitrite", unit: "", normalRange: "Negative" },
-      { id: "leukocyte_esterase", name: "Leukocyte Esterase", unit: "", normalRange: "Negative" },
-      { id: "pus_cells", name: "Pus Cells", unit: "/hpf", normalRange: "0-5" },
-      { id: "rbc_u", name: "RBC", unit: "/hpf", normalRange: "0-2" },
-      { id: "epithelial", name: "Epithelial Cells", unit: "/hpf", normalRange: "Few" },
-      { id: "casts", name: "Casts", unit: "", normalRange: "Nil" },
-      { id: "crystals", name: "Crystals", unit: "", normalRange: "Nil" },
-      { id: "bacteria", name: "Bacteria", unit: "", normalRange: "Nil" },
+      { id: "quantity", name: "Quantity", unit: "", normalRange: "-" },
+      { id: "colour", name: "Colour", unit: "", normalRange: "-" },
+      { id: "consistensy", name: "Consistensy", unit: "", normalRange: "-" },
+      { id: "sp_gravity", name: "Sp Gravity", unit: "", normalRange: "-" },
+      { id: "sediment", name: "Sediment", unit: "", normalRange: "-" },
     ],
   },
   {
-    id: "urine_culture",
-    name: "Urine Culture & Sensitivity",
+    id: "urine_chemical_exam",
+    name: "URINE - CHEMICAL EXAM",
     type: "urine",
     subcategories: [
-      { id: "organism", name: "Organism Isolated", unit: "", normalRange: "No Growth" },
-      { id: "colony_count", name: "Colony Count", unit: "CFU/mL", normalRange: "< 10,000" },
-      { id: "sensitivity", name: "Antibiotic Sensitivity", unit: "", normalRange: "Report" },
+      { id: "reaction", name: "Reaction", unit: "", normalRange: "-" },
+      { id: "sugar", name: "Sugar", unit: "", normalRange: "-" },
+      { id: "albumen", name: "Albumen", unit: "", normalRange: "-" },
+      { id: "phosphates", name: "Phosphates", unit: "", normalRange: "-" },
+      { id: "bile_salt", name: "Bile Salt", unit: "", normalRange: "-" },
+      { id: "bile_pigment", name: "Bile Pigment", unit: "", normalRange: "-" },
+      { id: "urobilinogen", name: "Urobilinogen", unit: "", normalRange: "-" },
     ],
   },
   {
-    id: "urine_pregnancy",
-    name: "Urine Pregnancy Test (UPT)",
+    id: "urine_microscopic_exam_cells",
+    name: "URINE - MICROSCOPIC EXAM CELLS",
     type: "urine",
     subcategories: [
-      { id: "upt", name: "hCG (Urine)", unit: "", normalRange: "Negative" },
+      { id: "erythrocytes", name: "Erythrocytes", unit: "", normalRange: "-" },
+      { id: "pus_cells", name: "Pus Cells", unit: "", normalRange: "-" },
+      { id: "epith_cells", name: "Epith.Cells", unit: "", normalRange: "-" },
     ],
   },
   {
-    id: "urine_microalbumin",
-    name: "Urine Microalbumin",
+    id: "urine_casts",
+    name: "URINE - CASTS",
     type: "urine",
     subcategories: [
-      { id: "microalbumin", name: "Microalbumin", unit: "mg/L", normalRange: "< 30" },
-      { id: "acr", name: "Albumin/Creatinine Ratio", unit: "mg/g", normalRange: "< 30" },
+      { id: "celluar", name: "Celluar", unit: "", normalRange: "-" },
+      { id: "granular", name: "Granular", unit: "", normalRange: "-" },
+      { id: "hyailne", name: "Hyailne", unit: "", normalRange: "-" },
+      { id: "others", name: "Others", unit: "", normalRange: "-" },
     ],
   },
   {
-    id: "urine_24hr",
-    name: "24-Hour Urine",
+    id: "urine_hcg",
+    name: "URINE FOR HCG",
     type: "urine",
     subcategories: [
-      { id: "volume_24", name: "Volume", unit: "mL/24hr", normalRange: "800-2000" },
-      { id: "protein_24", name: "Protein", unit: "mg/24hr", normalRange: "< 150" },
-      { id: "creatinine_24", name: "Creatinine", unit: "mg/24hr", normalRange: "800-2000" },
-      { id: "calcium_24", name: "Calcium", unit: "mg/24hr", normalRange: "100-300" },
-      { id: "uric_acid_24", name: "Uric Acid", unit: "mg/24hr", normalRange: "250-750" },
-    ],
-  },
-  {
-    id: "urine_sugar",
-    name: "Urine Sugar (Benedict's Test)",
-    type: "urine",
-    subcategories: [
-      { id: "urine_sugar_val", name: "Urine Sugar", unit: "", normalRange: "Nil" },
+      { id: "urine_hcg_result", name: "Urine HCG", unit: "", normalRange: "NEGATIVE/POSITIVE" },
     ],
   },
   // OTHER TESTS
   {
     id: "stool",
-    name: "Stool Examination",
+    name: "STOOL EXAMINATION",
     type: "other",
     subcategories: [
       { id: "stool_color", name: "Colour", unit: "", normalRange: "Brown" },
@@ -264,7 +247,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
   },
   {
     id: "semen",
-    name: "Semen Analysis",
+    name: "SEMEN ANALYSIS",
     type: "other",
     subcategories: [
       { id: "semen_volume", name: "Volume", unit: "mL", normalRange: "> 1.5" },

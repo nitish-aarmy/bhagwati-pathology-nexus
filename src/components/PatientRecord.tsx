@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { formatPatientAge } from "@/lib/data";
+import { formatDateDMY } from "@/lib/utils";
 
 export interface PatientRecordProps {
   patients: any[];
@@ -117,7 +118,7 @@ const PatientRecord: React.FC<PatientRecordProps> = ({
             {patientReports.map(r => (
               <div key={r.id} className="cursor-pointer border-b border-slate-100 px-3 py-2 hover:bg-primary/10" onClick={() => onOpenReport(r.id)}>
                 <div>Report ID: {r.id}</div>
-                <div>Date: {new Date(r.createdAt).toLocaleDateString()}</div>
+                <div>Date: {formatDateDMY(r.createdAt)}</div>
               </div>
             ))}
           </div>
@@ -161,7 +162,7 @@ const PatientRecord: React.FC<PatientRecordProps> = ({
                 >
                   <div className="font-semibold text-slate-800">{reportPatient?.name || report.patientName || "-"}</div>
                   <div className="text-slate-500">Mobile: {reportPatient?.phone || "-"} | Test ID: {reportPatient?.testId || report.testId || "-"}</div>
-                  <div className="text-slate-500">Report ID: {report.id} | Date: {reportDateText ? new Date(reportDateText).toLocaleDateString() : "-"}</div>
+                  <div className="text-slate-500">Report ID: {report.id} | Date: {formatDateDMY(reportDateText)}</div>
                 </div>
               );
             })}

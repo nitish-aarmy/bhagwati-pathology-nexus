@@ -1,6 +1,7 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HOSPITAL_INFO } from "@/lib/data";
+import { formatDateDMY } from "@/lib/utils";
 import {
   LayoutDashboard,
   FlaskConical,
@@ -105,12 +106,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           </button>
           <div className="flex-1" />
           <div className="neo-flat px-4 py-2 text-xs text-muted-foreground">
-            {new Date().toLocaleDateString("en-IN", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+                  {formatDateDMY(new Date())}
           </div>
         </header>
 

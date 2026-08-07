@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDateDMY } from "@/lib/utils";
 
 const SIGNATURE_ASSET_VERSION = "20260726a";
 const PATHOLOGIST_SIGNATURE_SRC = `${import.meta.env.BASE_URL}pathologist-signature.jpeg?v=${SIGNATURE_ASSET_VERSION}`;
@@ -44,12 +45,26 @@ const PrintableReport: React.FC<{ report: ClinicalReport }> = ({ report }) => {
   };
 
   const parsedDate = new Date(report.patient.date || report.patient.collectionDate || "");
-  const printableDate = Number.isNaN(parsedDate.getTime())
-    ? (report.patient.date || report.patient.collectionDate || "-")
-    : parsedDate.toLocaleDateString("en-IN");
+  const printableDate = formatDateDMY(report.patient.date || report.patient.collectionDate || "-");
   const printableTime = Number.isNaN(parsedDate.getTime())
     ? "-"
     : parsedDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  const getPrintableSectionTitle = (sectionName: string) => {
+    const rawName = String(sectionName || "").trim();
+    if (!rawName) return "Section";
+
+    const normalized = rawName.toUpperCase().replace(/\s+/g, " ").trim();
+    const isCbc = normalized.includes("COMPLETE BLOOD COUNT(CBC)") || normalized.includes("COMPLETE BLOOD COUNT (CBC)");
+    const withCbcSample = isCbc ? "Complete Blood Count(CBC)-whole blood" : rawName;
+
+    // Print-only casing request: show SERUM as Serum.
+    return withCbcSample.replace(/\bSERUM\b/gi, "Serum");
+  };
+
+  const formatPrintableText = (value: unknown) => {
+    return String(value ?? "").replace(/\bSERUM\b/gi, "Serum");
+  };
 
   return (
     <div id="print-report" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 11, width: '100%' }}>
@@ -77,8 +92,8 @@ const PrintableReport: React.FC<{ report: ClinicalReport }> = ({ report }) => {
 
         return (
           <div key={section.id} style={{ marginBottom: 10 }}>
-            <div style={{ fontWeight: 'bold', fontSize: 12, letterSpacing: 1, marginBottom: 2, borderBottom: '1px solid #222', paddingBottom: 2, textTransform: 'uppercase' }}>
-              {section.category}
+            <div style={{ fontWeight: 'bold', fontSize: 12, letterSpacing: 1, marginBottom: 2, borderBottom: '1px solid #222', paddingBottom: 2 }}>
+              {getPrintableSectionTitle(section.category)}
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 2, tableLayout: 'fixed', fontSize: 11 }}>
               <thead>
@@ -92,7 +107,7 @@ const PrintableReport: React.FC<{ report: ClinicalReport }> = ({ report }) => {
               <tbody>
                 {filledTests.map(test => (
                   <tr key={test.id}>
-                    <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.testName}</td>
+                    <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{formatPrintableText(test.testName)}</td>
                     <td style={{ padding: '2px 4px', border: '1px solid #222', fontWeight: 'bold', wordBreak: 'break-word' }}>{test.result}</td>
                     <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.unit}</td>
                     <td style={{ padding: '2px 4px', border: '1px solid #222', wordBreak: 'break-word' }}>{test.referenceRange}</td>
