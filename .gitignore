@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -11,6 +11,16 @@ node_modules
 dist
 dist-ssr
 *.local
+
+# Generated app package artifacts
+release/
+release*/
+**/win-unpacked/
+*.exe
+*.dll
+*.pak
+*.asar
+*.blockmap
 
 # Editor directories and files
 .vscode/*
