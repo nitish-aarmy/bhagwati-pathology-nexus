@@ -18,20 +18,28 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
   const formatDropdownLabel = (value: string) => {
     const normalized = String(value || "").trim().toUpperCase();
 
-    if (normalized === "NON-REACTIVE" || normalized === "NON REACTIVE") {
+    if (
+      normalized === "NON-REACTIVE" ||
+      normalized === "NON REACTIVE" ||
+      normalized === "-VE" ||
+      normalized.startsWith("-") ||
+      normalized.includes("NONREACTIVE") ||
+      normalized.includes("NEGATIVE")
+    ) {
+      // Prefer explicit Negative label for NEGATIVE and NON-REACTIVE variants
+      if (normalized === "NEGATIVE" || normalized.includes("NEGATIVE")) return "Negative";
       return "Non Reactive";
     }
 
-    if (normalized === "REACTIVE") {
+    if (
+      normalized === "REACTIVE" ||
+      normalized === "+VE" ||
+      normalized.startsWith("+") ||
+      normalized.includes("POSITIVE")
+    ) {
+      // Prefer explicit Positive label for POSITIVE variants
+      if (normalized === "POSITIVE" || normalized.includes("POSITIVE")) return "Positive";
       return "Reactive";
-    }
-
-    if (normalized === "NEGATIVE") {
-      return "Negative";
-    }
-
-    if (normalized === "POSITIVE") {
-      return "Positive";
     }
 
     return value;
@@ -49,6 +57,43 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
     }
 
     return null;
+  };
+
+  const handleKeyNavigation = (event: React.KeyboardEvent<HTMLElement>) => {
+    const key = event.key;
+    if (!(key === "ArrowDown" || key === "ArrowUp" || key === "Enter")) return;
+    event.preventDefault();
+    const current = event.currentTarget as HTMLElement;
+    // Find the container for this result block
+    const container = current.closest(".result-entry") as HTMLElement | null;
+    if (!container) return;
+    const focusables = Array.from(container.querySelectorAll('select.neo-input, input.neo-input, textarea.neo-input')) as HTMLElement[];
+    if (focusables.length === 0) return;
+
+    // Determine current index
+    let idx = focusables.findIndex((el) => el === current || el.contains(current));
+    if (idx === -1) {
+      // if current not found, try to find by activeElement
+      idx = focusables.findIndex((el) => el === document.activeElement);
+    }
+
+    if (key === "ArrowDown" || key === "Enter") {
+      const next = Math.min(focusables.length - 1, Math.max(0, idx + 1));
+      focusables[next]?.focus();
+      if (focusables[next] && (focusables[next] as HTMLInputElement).select) {
+        try { (focusables[next] as HTMLInputElement).select(); } catch (e) {}
+      }
+      return;
+    }
+
+    if (key === "ArrowUp") {
+      const prev = Math.max(0, idx - 1);
+      focusables[prev]?.focus();
+      if (focusables[prev] && (focusables[prev] as HTMLInputElement).select) {
+        try { (focusables[prev] as HTMLInputElement).select(); } catch (e) {}
+      }
+      return;
+    }
   };
 
   return (
@@ -84,7 +129,13 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
                     <td className="px-2 py-1.5 font-medium text-slate-800">{sub.name}</td>
                     <td className="px-2 py-1.5">
                       {(() => {
-                        const options = getDropdownOptions(sub.normalRange);
+                        let options = getDropdownOptions(sub.normalRange);
+                        // If this is a malaria or dengue parameter, force Positive/Negative dropdown
+                        const subId = String(sub.id || "").toLowerCase();
+                        const subName = String(sub.name || "").toUpperCase();
+                        if (!options && (subId.includes("malaria") || subId.includes("dengue") || subName.includes("MALARIA") || subName.includes("DENGUE"))) {
+                          options = ["NEGATIVE", "POSITIVE"];
+                        }
                         const currentValue = normalizeReportValue(results[testId]?.[sub.id] ?? "");
 
                         if (options) {
@@ -92,6 +143,7 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
                             <select
                               className="neo-input w-full px-2 py-1"
                               value={currentValue}
+                              onKeyDown={handleKeyNavigation}
                               onChange={(e) =>
                                 setResults((r: any) => ({
                                   ...r,
@@ -112,6 +164,7 @@ const ResultEntry: React.FC<ResultEntryProps> = ({
                             className="neo-input w-full px-2 py-1 uppercase"
                             autoCapitalize="characters"
                             value={currentValue}
+                            onKeyDown={handleKeyNavigation}
                             onChange={(e) =>
                               setResults((r: any) => ({
                               ...r,

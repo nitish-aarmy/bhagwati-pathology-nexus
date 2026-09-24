@@ -141,4 +141,23 @@
       inset -2px -2px 5px hsl(var(--neo-shadow-light)),
       0 0 0 2px hsl(var(--primary) / 0.3);
   }
+
+  /* Strong global print color overrides for report results */
+  @media print {
+    .report-results-table td .rp-positive-print,
+    .report-results-table td.rp-positive-print,
+    td .rp-positive-print {
+      color: #000000 !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+
+    .report-results-table td .rp-negative-print,
+    .report-results-table td.rp-negative-print,
+    td .rp-negative-print {
+      color: #b91c1c !important;
+      -webkit-print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+  }
 }

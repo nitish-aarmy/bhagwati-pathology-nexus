@@ -55,7 +55,8 @@
 
   #print-report table {
     width: 100% !important;
-    table-layout: fixed !important;
+    /* Use auto layout in print to avoid narrow fixed columns that force character-wrapping */
+    table-layout: auto !important;
     border-collapse: collapse !important;
     background: #fff !important;
   }
@@ -85,7 +86,10 @@
     padding: 3px 5px !important;
     vertical-align: top !important;
     line-height: 1.28 !important;
-    word-break: break-word !important;
+    /* Use normal wrapping to avoid breaking words/characters in Chrome print preview */
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    white-space: normal !important;
     border-color: #111 !important;
   }
 

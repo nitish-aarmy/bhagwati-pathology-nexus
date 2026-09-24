@@ -58,13 +58,35 @@ const TestSection: React.FC<TestSectionProps> = ({ section, onUpdate, onRemove }
                 <input className="neo-input w-32 uppercase" autoCapitalize="characters" value={test.testName || ""} onChange={e => handleChange(idx, "testName", e.target.value)} />
               </td>
               <td className="py-1 px-2">
-                <input
-                  className="neo-input w-20 uppercase"
-                  autoCapitalize="characters"
-                  value={test.result || ""}
-                  placeholder="N/A"
-                  onChange={e => handleChange(idx, "result", e.target.value)}
-                />
+                {(() => {
+                  const upperCategory = String(section?.category || "").toUpperCase();
+                  const testNameUpper = String(test.testName || "").toUpperCase();
+                  const isRh = upperCategory.includes("BLOOD GROUPING & TYPING") && testNameUpper.includes("RH");
+                  const isMalariaOrDengue = (upperCategory.includes("MALARIA") || upperCategory.includes("DENGUE") || testNameUpper.includes("MALARIA") || testNameUpper.includes("DENGUE"));
+                  if (isRh || isMalariaOrDengue) {
+                    return (
+                      <select
+                        className="neo-input w-28 px-2 py-1"
+                        value={test.result || ""}
+                        onChange={e => handleChange(idx, "result", e.target.value)}
+                      >
+                        <option value="">Select</option>
+                        <option value="POSITIVE">Positive</option>
+                        <option value="NEGATIVE">Negative</option>
+                      </select>
+                    );
+                  }
+
+                  return (
+                    <input
+                      className="neo-input w-20 uppercase"
+                      autoCapitalize="characters"
+                      value={test.result || ""}
+                      placeholder="N/A"
+                      onChange={e => handleChange(idx, "result", e.target.value)}
+                    />
+                  );
+                })()}
               </td>
               <td className="py-1 px-2">
                 <input className="neo-input w-16 uppercase" autoCapitalize="characters" value={test.unit || ""} onChange={e => handleChange(idx, "unit", e.target.value)} />

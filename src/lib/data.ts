@@ -87,7 +87,7 @@ export const TEST_CATEGORIES: TestCategory[] = [
       { id: "ggt_male", name: "GGT (Gamma Glutamyl Transferase) - Male", unit: "IU/L", normalRange: "8.61" },
       { id: "ggt_female", name: "GGT (Gamma Glutamyl Transferase) - Female", unit: "IU/L", normalRange: "6.35" },
       { id: "alp", name: "Alkaline Phosphatase", unit: "IU/L", normalRange: "70-270" },
-      { id: "serum_amylase", name: "Serum Amylase", unit: "U/L", normalRange: "25-125" },
+      
       { id: "total_protein", name: "Total Protein", unit: "g/dl", normalRange: "6.0-8.0" },
       { id: "albumin", name: "Albumin", unit: "g/dl", normalRange: "3.7-5.3" },
       { id: "globulin", name: "Globulin", unit: "g/dl", normalRange: "2.3-3.6" },
@@ -108,6 +108,15 @@ export const TEST_CATEGORIES: TestCategory[] = [
       { id: "chloride", name: "Chloride", unit: "mEq/L", normalRange: "98-106" },
       { id: "calcium", name: "Calcium", unit: "mmol/L", normalRange: "2.20-2.70" },
       { id: "phosphorus", name: "Phosphorus", unit: "mg/dL", normalRange: "2.5-4.5" },
+    ],
+  },
+  {
+    id: "pancreatic_enzymes",
+    name: "PANCREATIC ENZYMES",
+    type: "blood",
+    subcategories: [
+      { id: "serum_amylase", name: "Serum Amylase", unit: "IU/L", normalRange: "25-125" },
+      { id: "serum_lipase", name: "Serum Lipase", unit: "IU/L", normalRange: "0-60" },
     ],
   },
   {
@@ -170,9 +179,11 @@ export const TEST_CATEGORIES: TestCategory[] = [
       { id: "crp", name: "CRP", unit: "mg/L", normalRange: "0.5-5.5" },
       { id: "dengue_ns1", name: "Dengue NS1 Antigen", unit: "", normalRange: "Negative" },
       { id: "dengue_igg_igm", name: "Dengue IgG/IgM", unit: "", normalRange: "Negative" },
-      { id: "typhoid_igm", name: "Typhoid (Ig M)", unit: "", normalRange: "Negative/Positive" },
-      { id: "typhoid_igg", name: "Typhoid (Ig G)", unit: "", normalRange: "Negative/Positive" },
+      { id: "typhoid_igm", name: "Typhoid (Ig M)", unit: "", normalRange: "Non-Reactive/Reactive" },
+      { id: "typhoid_igg", name: "Typhoid (Ig G)", unit: "", normalRange: "Non-Reactive/Reactive" },
       { id: "malaria", name: "Malaria Antigen (Rapid)", unit: "", normalRange: "Negative" },
+      { id: "scrub_typhus_igm", name: "Scrub Typhus IgM", unit: "", normalRange: "Non-Reactive/Reactive" },
+      { id: "scrub_typhus_igg", name: "Scrub Typhus IgG", unit: "", normalRange: "Non-Reactive/Reactive" },
     ],
   },
   // URINE TESTS

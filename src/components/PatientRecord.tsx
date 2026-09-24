@@ -116,9 +116,20 @@ const PatientRecord: React.FC<PatientRecordProps> = ({
           <div className="mb-1 font-bold text-slate-700">Previous Reports</div>
           <div className="max-h-40 overflow-y-auto rounded-xl border border-slate-200 bg-white text-xs">
             {patientReports.map(r => (
-              <div key={r.id} className="cursor-pointer border-b border-slate-100 px-3 py-2 hover:bg-primary/10" onClick={() => onOpenReport(r.id)}>
-                <div>Report ID: {r.id}</div>
-                <div>Date: {formatDateDMY(r.createdAt)}</div>
+              <div key={r.id} className="border-b border-slate-100 px-3 py-2 hover:bg-primary/10 flex items-center justify-between">
+                <div className="cursor-pointer" onClick={() => onOpenReport(r.id)}>
+                  <div>Report ID: {r.id}</div>
+                  <div>Date: {formatDateDMY(r.createdAt)}</div>
+                </div>
+                <div>
+                  <button
+                    className="neo-btn px-3 py-1 text-sm"
+                    onClick={(e) => { e.stopPropagation(); onOpenReport(r.id); }}
+                    aria-label={`View report ${r.id}`}
+                  >
+                    View
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -155,14 +166,21 @@ const PatientRecord: React.FC<PatientRecordProps> = ({
               const reportDateText = report?.reportedAt || report?.createdAt;
 
               return (
-                <div
-                  key={report.id}
-                  className="cursor-pointer border-b border-slate-100 px-3 py-2 hover:bg-primary/10"
-                  onClick={() => onOpenReport(report.id)}
-                >
-                  <div className="font-semibold text-slate-800">{reportPatient?.name || report.patientName || "-"}</div>
-                  <div className="text-slate-500">Mobile: {reportPatient?.phone || "-"} | Test ID: {reportPatient?.testId || report.testId || "-"}</div>
-                  <div className="text-slate-500">Report ID: {report.id} | Date: {formatDateDMY(reportDateText)}</div>
+                <div key={report.id} className="border-b border-slate-100 px-3 py-2 hover:bg-primary/10 flex items-center justify-between">
+                  <div className="cursor-pointer" onClick={() => onOpenReport(report.id)}>
+                    <div className="font-semibold text-slate-800">{reportPatient?.name || report.patientName || "-"}</div>
+                    <div className="text-slate-500">Mobile: {reportPatient?.phone || "-"} | Test ID: {reportPatient?.testId || report.testId || "-"}</div>
+                    <div className="text-slate-500">Report ID: {report.id} | Date: {formatDateDMY(reportDateText)}</div>
+                  </div>
+                  <div>
+                    <button
+                      className="neo-btn px-3 py-1 text-sm"
+                      onClick={(e) => { e.stopPropagation(); onOpenReport(report.id); }}
+                      aria-label={`View report ${report.id}`}
+                    >
+                      View
+                    </button>
+                  </div>
                 </div>
               );
             })}

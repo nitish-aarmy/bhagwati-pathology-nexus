@@ -27,7 +27,8 @@ const Reports = () => {
     setSelectedReportId(reportId);
     const report = reports.find(r => r.id === reportId);
     setEditingReport(report ? { ...report } : null);
-    setStep(2);
+    // Open directly in preview mode for quick viewing
+    setStep(3);
   };
   const handleCreateReport = (patientId: string) => {
     const patient = patients.find(p => p.id === patientId);
